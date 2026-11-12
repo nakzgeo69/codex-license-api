@@ -5,40 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CODEX Admin Panel</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             background-color: #0f0f13;
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            padding: 20px;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .container {
             background-color: #1a1a24;
-            padding: 30px;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             border: 1px solid #2d2d3d;
+            margin-bottom: 20px;
         }
         h2 {
             text-align: center;
             color: #a855f7;
+            margin-top: 0;
             margin-bottom: 20px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+            font-size: 20px;
         }
         .input-group {
             margin-bottom: 15px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #888;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #a0a0b0;
+            font-weight: 600;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .row > * {
+            flex: 1;
         }
         input, select, button {
             width: 100%;
@@ -47,60 +59,104 @@
             border: 1px solid #333;
             background-color: #0f0f13;
             color: #fff;
-            box-sizing: border-box;
             font-size: 14px;
+            outline: none;
         }
         input:focus, select:focus {
-            outline: none;
             border-color: #a855f7;
         }
-        button {
+        button.main-btn {
             background-color: #a855f7;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
             transition: 0.3s;
+            border: none;
+            margin-top: 10px;
         }
-        button:hover {
+        button.main-btn:hover {
             background-color: #9333ea;
         }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #2d2d3d;
+        
+        /* Listahan ng Keys */
+        .keys-container {
+            width: 100%;
+            max-width: 500px;
+        }
+        .key-card {
+            background-color: #1a1a24;
+            border: 1px solid #2d2d3d;
             border-radius: 8px;
-            display: none;
-            border-left: 4px solid #a855f7;
-            word-break: break-all;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .result p { margin: 5px 0; font-size: 14px; }
-        .key-text {
+        .key-card .key-name {
+            font-family: monospace;
             color: #4ade80;
-            font-weight: bold;
             font-size: 16px;
-        }
-        .status-badge {
-            color: #fbbf24;
             font-weight: bold;
+        }
+        .key-card button {
+            width: auto;
+            padding: 6px 12px;
+            background-color: #3b82f6;
+            border: none;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .key-card button:hover { background-color: #2563eb; }
+
+        /* Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background-color: #1a1a24;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 350px;
+            border: 1px solid #a855f7;
+        }
+        .modal-content p {
+            margin: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        .modal-content span { float: right; font-weight: bold; }
+        .close-btn {
+            background-color: #ef4444;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
+<!-- FORM CONTAINER -->
 <div class="container">
     <h2>Codex Admin Panel</h2>
     
     <div class="input-group">
         <label>Admin Password</label>
-        <input type="password" id="adminPass" placeholder="Enter Admin Password">
+        <input type="password" id="adminPass" placeholder="Enter password...">
     </div>
 
     <div class="input-group">
         <label>Time Expiry</label>
-        <div style="display: flex; gap: 10px;">
-            <input type="number" id="duration" value="1" style="width: 40%;">
-            <select id="unit" style="width: 60%;">
+        <div class="row">
+            <input type="number" id="duration" value="1" min="1">
+            <select id="unit">
                 <option value="seconds">Seconds</option>
                 <option value="minutes" selected>Minutes</option>
                 <option value="hours">Hours</option>
@@ -111,45 +167,142 @@
         </div>
     </div>
 
-    <button onclick="generateKey()">Generate Key</button>
+    <button class="main-btn" onclick="generateKey()">Generate Key</button>
+</div>
 
-    <div class="result" id="resultBox">
-        <p><strong>Generated Key:</strong> <span class="key-text" id="resKey"></span></p>
-        <p><strong>Time Expiry:</strong> <span id="resTime"></span></p>
-        <p><strong>Status:</strong> <span class="status-badge">Not Used (Ready to Verify)</span></p>
-        <p><strong>Owner:</strong> GeoDevs69</p>
+<!-- LISTAHAN NG MGA KEYS -->
+<div class="keys-container" id="keysList">
+    <!-- Dito lalabas ang mga keys -->
+</div>
+
+<!-- DETAILS MODAL -->
+<div class="modal" id="detailsModal">
+    <div class="modal-content">
+        <h2 style="font-size:16px;">Key Details</h2>
+        <p>Status: <span id="dStatus"></span></p>
+        <p>HWID: <span id="dHwid" style="font-size:10px; max-width: 150px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span></p>
+        <p>Valid For: <span id="dValid"></span></p>
+        <p>Time Left: <span id="dTimeLeft"></span></p>
+        <button class="main-btn close-btn" onclick="closeModal()">Close</button>
     </div>
 </div>
 
 <script>
+    let currentPass = "";
+    let timerInterval = null;
+
     async function generateKey() {
         const pass = document.getElementById('adminPass').value;
         const duration = document.getElementById('duration').value;
         const unit = document.getElementById('unit').value;
 
-        if (!pass) {
-            alert("Please enter Admin Password!");
-            return;
-        }
+        if (!pass) return alert("Enter Password!");
 
-        // Tinatawag natin ang server.js
+        currentPass = pass;
         const url = `/generate?password=${pass}&duration=${duration}&unit=${unit}`;
-
+        
         try {
-            const response = await fetch(url);
-            const data = await response.json();
+            const res = await fetch(url);
+            const data = await res.json();
 
             if (data.status === "success") {
-                document.getElementById('resKey').innerText = data.key;
-                document.getElementById('resTime').innerText = `${duration} ${unit}`;
-                document.getElementById('resultBox').style.display = 'block';
+                loadKeys(); // I-reload ang listahan
             } else {
-                alert("Error: " + data.message);
+                alert(data.message);
             }
-        } catch (error) {
-            alert("Server Error. Check Render Logs.");
+        } catch (e) {
+            alert("Server Error");
         }
     }
+
+    async function loadKeys() {
+        const pass = document.getElementById('adminPass').value;
+        if (!pass) return;
+
+        try {
+            const res = await fetch(`/list?password=${pass}`);
+            const data = await res.json();
+            
+            const container = document.getElementById('keysList');
+            container.innerHTML = "";
+
+            if (Object.keys(data).length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#888;'>No keys generated yet.</p>";
+                return;
+            }
+
+            // I-reverse para pinakabago ang nasa taas
+            const keys = Object.keys(data).reverse();
+            
+            keys.forEach(k => {
+                const card = document.createElement('div');
+                card.className = 'key-card';
+                card.innerHTML = `
+                    <span class="key-name">${k}</span>
+                    <button onclick="viewKey('${k}')">View</button>
+                `;
+                container.appendChild(card);
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async function viewKey(key) {
+        const pass = document.getElementById('adminPass').value;
+        const res = await fetch(`/check?password=${pass}&key=${key}`);
+        const data = await res.json();
+
+        document.getElementById('dStatus').innerText = data.status;
+        document.getElementById('dStatus').style.color = data.status === 'ACTIVE' ? '#4ade80' : '#fbbf24';
+        
+        document.getElementById('dHwid').innerText = data.hwid;
+        document.getElementById('dValid').innerText = `${data.duration} ${data.unit}`;
+        
+        // Timer Logic
+        if (timerInterval) clearInterval(timerInterval);
+        const timeLeftEl = document.getElementById('dTimeLeft');
+        
+        function updateTimer() {
+            if (data.status === "UNUSED") {
+                timeLeftEl.innerText = "Waiting for first use...";
+                timeLeftEl.style.color = "#fbbf24";
+                clearInterval(timerInterval);
+                return;
+            }
+            if (data.timeLeftMs <= 0) {
+                timeLeftEl.innerText = "EXPIRED";
+                timeLeftEl.style.color = "#ef4444";
+                clearInterval(timerInterval);
+                return;
+            }
+
+            let totalSec = Math.floor(data.timeLeftMs / 1000);
+            let d = Math.floor(totalSec / (3600 * 24));
+            let h = Math.floor((totalSec % (3600 * 24)) / 3600);
+            let m = Math.floor((totalSec % 3600) / 60);
+            let s = totalSec % 60;
+
+            timeLeftEl.innerText = `${d}d ${h}h ${m}m ${s}s`;
+            timeLeftEl.style.color = "#4ade80";
+            data.timeLeftMs -= 1000;
+        }
+
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+
+        document.getElementById('detailsModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('detailsModal').style.display = 'none';
+        clearInterval(timerInterval);
+    }
+
+    // Auto-load keys pagka-type ng password
+    document.getElementById('adminPass').addEventListener('input', () => {
+        if(document.getElementById('adminPass').value.length > 3) loadKeys();
+    });
 </script>
 
 </body>
