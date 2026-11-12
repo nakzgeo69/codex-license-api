@@ -3,11 +3,8 @@ const path = require('path');
 const app = express();
 
 app.use(express.json());
-
-// I-serve ang index.html
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ADMIN PASSWORD (Walang special characters para iwas error)
 const ADMIN_PASSWORD = "CodexAdmin101"; 
 let database = {}; 
 
@@ -37,14 +34,15 @@ app.get('/generate', (req, res) => {
         status: "UNUSED",
         duration: parseInt(duration),
         unit: unit,
-        expires: null
+        expires: null,
+        pausedTimeLeft: null // Dito natin isasave ang oras kapag nag-pause
     };
 
     res.json({ status: "success", key: key });
 });
 
 // ==========================================
-// 2. VERIFY ROUTE
+// 2. VERIFY ROUTE (Lua Script)
 // ==========================================
 app.post('/verify', (req, res) => {
     const { key, hwid } = req.body;
@@ -54,9 +52,14 @@ app.post('/verify', (req, res) => {
     const keyData = database[key];
     if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
 
+    // Kapag PAUSED
+    if (keyData.status === "PAUSED") {
+        return res.status(403).json({ status: "paused", message: "Key Successfully Hold!" });
+    }
+
+    // UNANG GAMIT
     if (keyData.status === "UNUSED") {
         let expires = new Date();
-        
         if (keyData.unit === 'seconds') expires.setSeconds(expires.getSeconds() + keyData.duration);
         else if (keyData.unit === 'minutes') expires.setMinutes(expires.getMinutes() + keyData.duration);
         else if (keyData.unit === 'hours') expires.setHours(expires.getHours() + keyData.duration);
@@ -71,6 +74,7 @@ app.post('/verify', (req, res) => {
         return res.json({ status: "success", message: "Key activated!" });
     }
 
+    // ACTIVE
     if (keyData.status === "ACTIVE") {
         if (keyData.hwid !== hwid) {
             return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
@@ -97,14 +101,12 @@ app.get('/list', (req, res) => {
 });
 
 // ==========================================
-// 4. CHECK SINGLE KEY ROUTE
+// 4. CHECK SINGLE KEY
 // ==========================================
 app.get('/check', (req, res) => {
     const { password, key } = req.query;
 
-    if (password !== ADMIN_PASSWORD) {
-        return res.status(401).json({ status: "error" });
-    }
+    if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
 
     const keyData = database[key];
     if (!keyData) return res.status(404).json({ status: "error", message: "Not found" });
@@ -113,6 +115,8 @@ app.get('/check', (req, res) => {
     if (keyData.status === "ACTIVE" && keyData.expires) {
         timeLeftMs = new Date(keyData.expires) - new Date();
         if (timeLeftMs < 0) timeLeftMs = 0;
+    } else if (keyData.status === "PAUSED" && keyData.pausedTimeLeft) {
+        timeLeftMs = keyData.pausedTimeLeft;
     }
 
     res.json({
@@ -124,6 +128,51 @@ app.get('/check', (req, res) => {
         unit: keyData.unit,
         timeLeftMs: timeLeftMs
     });
+});
+
+// ==========================================
+// 5. PAUSE / RESUME ROUTE
+// ==========================================
+app.get('/toggle-pause', (req, res) => {
+    const { password, key } = req.query;
+    if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
+
+    const keyData = database[key];
+    if (!keyData) return res.status(404).json({ status: "error", message: "Key not found" });
+
+    if (keyData.status === "ACTIVE") {
+        // I-pause: Isave ang natitirang oras
+        let timeLeft = new Date(keyData.expires) - new Date();
+        if (timeLeft < 0) timeLeft = 0;
+        keyData.pausedTimeLeft = timeLeft;
+        keyData.status = "PAUSED";
+        return res.json({ status: "success", message: "Key Successfully Hold!" });
+    } 
+    else if (keyData.status === "PAUSED") {
+        // I-resume: Ibalik ang oras
+        let newExpires = new Date();
+        newExpires.setMilliseconds(newExpires.getMilliseconds() + keyData.pausedTimeLeft);
+        keyData.expires = newExpires.toISOString();
+        keyData.pausedTimeLeft = null;
+        keyData.status = "ACTIVE";
+        return res.json({ status: "success", message: "Key Successfully Resumed!" });
+    }
+
+    res.json({ status: "error", message: "Cannot pause UNUSED key" });
+});
+
+// ==========================================
+// 6. DELETE ROUTE
+// ==========================================
+app.get('/delete', (req, res) => {
+    const { password, key } = req.query;
+    if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
+
+    if (database[key]) {
+        delete database[key];
+        return res.json({ status: "success", message: "Keys Successfully Deleted" });
+    }
+    res.status(404).json({ status: "error", message: "Not found" });
 });
 
 const PORT = process.env.PORT || 10000;
