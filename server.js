@@ -1,8 +1,14 @@
 const express = require('express');
+const path = require('path');
 const app = express();
+
 app.use(express.json());
 
-const ADMIN_PASSWORD = "CodexSquad101#"; 
+// I-serve ang index.html mula sa 'public' folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ITO ANG ADMIN PASSWORD MO (Walang special chars para iwas error)
+const ADMIN_PASSWORD = "CodexAdmin101"; 
 let database = {}; 
 
 function generateRandomString(length) {
@@ -15,9 +21,8 @@ function generateRandomString(length) {
 }
 
 // ==========================================
-// ROUTE 1: ADMIN GENERATE
+// 1. GENERATE ROUTE (Tinatawag ng UI)
 // ==========================================
-// Example test: /generate?password=CodexSquad101#&duration=1&unit=minutes
 app.get('/generate', (req, res) => {
     const { password, duration, unit } = req.query;
 
@@ -27,7 +32,7 @@ app.get('/generate', (req, res) => {
 
     const key = `CODEX-${generateRandomString(4)}-${generateRandomString(4)}`;
     
-    // I-save natin na "NOT_STARTED" muna.
+    // I-save na "UNUSED" (Timer starts on first use)
     database[key] = {
         hwid: "WALA_PA",
         status: "UNUSED",
@@ -45,7 +50,7 @@ app.get('/generate', (req, res) => {
 });
 
 // ==========================================
-// ROUTE 2: VERIFY (Para sa Lua Script)
+// 2. VERIFY ROUTE (Para sa Lua Script)
 // ==========================================
 app.post('/verify', (req, res) => {
     const { key, hwid } = req.body;
@@ -59,11 +64,13 @@ app.post('/verify', (req, res) => {
     if (keyData.status === "UNUSED") {
         let expires = new Date();
         
-        // LOGIC PARA SA MINUTES, HOURS, DAYS, MONTHS
-        if (keyData.unit === 'minutes') expires.setMinutes(expires.getMinutes() + keyData.duration);
+        // Logic para sa lahat ng units
+        if (keyData.unit === 'seconds') expires.setSeconds(expires.getSeconds() + keyData.duration);
+        else if (keyData.unit === 'minutes') expires.setMinutes(expires.getMinutes() + keyData.duration);
         else if (keyData.unit === 'hours') expires.setHours(expires.getHours() + keyData.duration);
         else if (keyData.unit === 'days') expires.setDate(expires.getDate() + keyData.duration);
         else if (keyData.unit === 'months') expires.setMonth(expires.getMonth() + keyData.duration);
+        else if (keyData.unit === 'years') expires.setFullYear(expires.getFullYear() + keyData.duration);
 
         keyData.expires = expires.toISOString();
         keyData.hwid = hwid; 
@@ -93,14 +100,13 @@ app.post('/verify', (req, res) => {
             return res.status(403).json({ status: "expired", message: "Key has expired" });
         }
 
-        // Compute remaining time para makita natin sa Lua
-        const timeLeft = Math.round((expiryDate - now) / 60000); // in minutes
+        const timeLeft = Math.round((expiryDate - now) / 60000); // Minutes left
         return res.json({ status: "success", message: `License Valid. Time left: ${timeLeft} mins` });
     }
 });
 
 // ==========================================
-// ROUTE 3: ADMIN LIST (Check mo lahat ng keys)
+// 3. ADMIN LIST ROUTE
 // ==========================================
 app.get('/list', (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) {
