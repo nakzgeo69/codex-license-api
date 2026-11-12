@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX MLBB LICENSE</title>
+    <title>Codex Admin Login</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap');
 
         * { box-sizing: border-box; }
+        
         body {
             background-color: #050505;
             background-image: radial-gradient(circle at 50% 0%, #1a0b2e 0%, #050505 70%);
@@ -18,304 +19,321 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
         }
 
-        /* TOP NAVIGATION */
+        /* TOP NAVBAR */
         .navbar {
+            position: fixed;
+            top: 0;
             width: 100%;
             padding: 15px 20px;
-            background-color: #0a0a0f;
-            border-bottom: 1px solid #1f1f2e;
+            background-color: transparent;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
+            justify-content: flex-start;
         }
         .logo-text {
             font-family: 'Orbitron', sans-serif;
             font-size: 18px;
             color: #a855f7;
-            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
             margin: 0;
-        }
-
-        /* MAIN CONTAINER */
-        .main-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 40px 20px;
-            text-align: center;
-        }
-
-        /* LOGO SHIELD */
-        .shield-logo {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 20px auto;
-            background: linear-gradient(135deg, #2d114d, #0a0a0f);
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
-            border: 2px solid #a855f7;
-            position: relative;
-            overflow: hidden;
-        }
-        .shield-logo::before {
-            content: '💎';
-            font-size: 70px;
-            filter: drop-shadow(0 0 10px #a855f7);
-        }
-
-        /* BADGES AND TITLES */
-        .license-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 20px;
-            border: 1px solid #4c1d95;
-            background-color: rgba(76, 29, 149, 0.3);
-            color: #d8b4fe;
-            font-size: 11px;
-            font-weight: 600;
             letter-spacing: 2px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-        .main-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
-            margin: 0 0 10px 0;
-            background: linear-gradient(to right, #a855f7, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
-        }
-        .subtitle {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
         }
 
-        /* MAIN BUTTON */
-        .get-key-btn {
-            background: linear-gradient(to right, #9333ea, #3b82f6);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: bold;
+        /* LOGIN CONTAINER */
+        .login-container {
             width: 100%;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.5);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-        .get-key-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 25px rgba(147, 51, 234, 0.8);
-        }
-
-        /* FEATURE CARDS */
-        .feature-card {
-            background-color: #0f0f17;
-            border: 1px solid #2d2d3d;
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-align: left;
-        }
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #9333ea, #3b82f6);
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-        }
-        .feature-text h4 {
-            margin: 0;
-            font-size: 12px;
-            color: #ccc;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .feature-text p {
-            margin: 3px 0 0 0;
-            font-size: 11px;
-            color: #666;
-        }
-
-        /* BOTTOM NAVIGATION */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #0a0a0f;
-            border-top: 1px solid #1f1f2e;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-        }
-        .nav-item {
-            color: #666;
-            text-decoration: none;
-            font-size: 10px;
+            max-width: 350px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
-            transition: 0.2s;
-        }
-        .nav-item.active {
-            color: #a855f7;
-        }
-        .nav-item i { font-size: 16px; }
-
-        /* MODAL FOR GET KEY */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .modal-content {
-            background-color: #0f0f17;
-            padding: 25px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 350px;
-            border: 1px solid #a855f7;
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
             text-align: center;
         }
-        .modal-content input {
+
+        /* LOCK ICON GLOW */
+        .lock-icon-box {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #a855f7, #6b21a8);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            margin: 0 0 30px 0;
+            letter-spacing: 2px;
+        }
+        .title span { color: #a855f7; }
+
+        /* FORM BOX WITH GLASSMORPHISM */
+        .form-box {
+            background: rgba(15, 15, 23, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 16px;
             width: 100%;
-            padding: 12px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
             border-radius: 8px;
             border: 1px solid #333;
             background-color: #050505;
             color: #fff;
-            margin-bottom: 15px;
+            font-size: 14px;
             outline: none;
-            text-align: center;
-            font-size: 16px;
-            letter-spacing: 2px;
+            margin-bottom: 15px;
+            transition: 0.3s;
+            font-family: 'Inter', sans-serif;
         }
-        .modal-content input:focus { border-color: #a855f7; }
-        .close-modal {
-            background: transparent;
+        input:focus { 
+            border-color: #a855f7; 
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+
+        .sign-in-btn {
+            background: linear-gradient(to right, #a855f7, #3b82f6);
+            color: white;
             border: none;
-            color: #ef4444;
-            margin-top: 15px;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            width: 100%;
             cursor: pointer;
-            font-size: 12px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+            transition: 0.3s;
+            letter-spacing: 1px;
         }
+        .sign-in-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.8);
+        }
+
+        .footer-text {
+            font-size: 11px;
+            color: #888;
+            margin-top: 10px;
+        }
+        .footer-text span { color: #a855f7; cursor: pointer; }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-container { animation: fadeIn 0.8s ease-out; }
     </style>
-    <!-- FontAwesome para sa mga icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- TOP NAVBAR -->
     <div class="navbar">
         <h1 class="logo-text">CODEX MLBB</h1>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-container">
+    <div class="login-container">
         
-        <div class="shield-logo"></div>
-        
-        <div class="license-badge">LICENSE SYSTEM</div>
-        
-        <h1 class="main-title">CODEX VIP</h1>
-        
-        <p class="subtitle">Claim a free key, bound securely to your device.</p>
-
-        <button class="get-key-btn" onclick="openModal()">
-            <i class="fas fa-bolt"></i> GET FREE KEY
-        </button>
-
-        <!-- FEATURE CARDS -->
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-shield-alt" style="color: white;"></i></div>
-            <div class="feature-text">
-                <h4>SERVER VALIDATED</h4>
-                <p>Every key is checked on our server.</p>
-            </div>
+        <div class="lock-icon-box">
+            <i class="fas fa-lock" style="color: white;"></i>
         </div>
 
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-fingerprint" style="color: white;"></i></div>
-            <div class="feature-text">
-                <h4>HWID BOUND</h4>
-                <p>One key locks to one device.</p>
-            </div>
+        <h1 class="title">ADMIN <span>LOGIN</span></h1>
+
+        <div class="form-box">
+            <!-- Dito mo ilalagay ang password input mo -->
+            <input type="password" id="adminPass" placeholder="Enter Admin Password">
+            
+            <!-- Yung Generate at listahan ay lalabas pagkatapos mag-login -->
+            <button class="sign-in-btn" onclick="login()">SIGN IN</button>
         </div>
 
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-clock" style="color: white;"></i></div>
-            <div class="feature-text">
-                <h4>AUTO EXPIRY</h4>
-                <p>Keys expire right on schedule.</p>
-            </div>
-        </div>
-
+        <p class="footer-text">Need access? Contact <span>GeoDevs69</span></p>
     </div>
 
-    <!-- BOTTOM NAV -->
-    <div class="bottom-nav">
-        <a href="#" class="nav-item active">
-            <i class="fas fa-home"></i>
-            <span>HOME</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fas fa-key"></i>
-            <span>CHECK</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fas fa-gem"></i>
-            <span>PRICING</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fas fa-shield-alt"></i>
-            <span>ADMIN</span>
-        </a>
-    </div>
-
-    <!-- MODAL FOR GET KEY -->
-    <div class="modal" id="keyModal">
-        <div class="modal-content">
-            <h2 style="color:#a855f7; margin-top:0;">GET YOUR KEY</h2>
-            <p style="font-size:12px; color:#888;">Enter your License Key to verify.</p>
-            <input type="text" placeholder="CODEX-XXXX-XXXX">
-            <button class="get-key-btn" onclick="alert('Verify logic here')">VERIFY KEY</button>
-            <button class="close-modal" onclick="closeModal()">Cancel</button>
+    <!-- DITO YUNG ADMIN PANEL NA NAKATAGO -->
+    <div id="adminPanel" style="display:none; width:100%; max-width:500px; padding:20px; animation: fadeIn 0.5s;">
+        <div class="form-container" style="background: rgba(15,15,23,0.8); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid #a855f7; margin-bottom:20px;">
+            <div class="input-group" style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:8px; font-size:13px; color:#a0a0b0;">Time Expiry</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="duration" value="1" min="1" style="flex:1;">
+                    <select id="unit" style="flex:1; padding:14px; border-radius:8px; background:#050505; color:#fff; border:1px solid #333;">
+                        <option value="seconds">Seconds</option>
+                        <option value="minutes" selected>Minutes</option>
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                        <option value="months">Months</option>
+                        <option value="years">Years</option>
+                    </select>
+                </div>
+            </div>
+            <button class="sign-in-btn" onclick="generateKey()">GENERATE KEY</button>
         </div>
+        <div class="keys-container" id="keysList"></div>
     </div>
 
-    <script>
-        function openModal() {
-            document.getElementById('keyModal').style.display = 'flex';
+<script>
+    // LOGIN LOGIC
+    function login() {
+        const pass = document.getElementById('adminPass').value;
+        if (pass === "CodexAdmin101") { // PALITAN MO ITO KUNG GUSTO MO
+            document.querySelector('.login-container').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            loadKeys();
+        } else {
+            alert("Invalid Password!");
         }
-        function closeModal() {
-            document.getElementById('keyModal').style.display = 'none';
-        }
-    </script>
+    }
 
+    // ADMIN LOGIC (Pareho ng dati)
+    let timerIntervals = {};
+
+    async function generateKey() {
+        const pass = document.getElementById('adminPass').value;
+        const duration = document.getElementById('duration').value;
+        const unit = document.getElementById('unit').value;
+
+        const res = await fetch(`/generate?password=${pass}&duration=${duration}&unit=${unit}`);
+        const data = await res.json();
+        if (data.status === "success") loadKeys();
+        else alert(data.message);
+    }
+
+    async function loadKeys() {
+        const pass = document.getElementById('adminPass').value;
+        if (!pass) return;
+
+        for (let key in timerIntervals) clearInterval(timerIntervals[key]);
+        timerIntervals = {};
+
+        const res = await fetch(`/list?password=${pass}`);
+        const data = await res.json();
+        const container = document.getElementById('keysList');
+        container.innerHTML = "";
+
+        if (Object.keys(data).length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#888;'>No keys generated yet.</p>";
+            return;
+        }
+
+        const sortedKeys = Object.keys(data).sort((a, b) => data[a].createdAt - data[b].createdAt);
+        let indexCounter = 1;
+
+        sortedKeys.forEach(k => {
+            const keyData = data[k];
+            const card = document.createElement('div');
+            card.className = 'key-card';
+            card.style.cssText = "background: rgba(15,15,23,0.8); border: 1px solid #2d2d3d; border-radius: 8px; overflow: hidden; margin-bottom: 10px;";
+            
+            let pauseIcon = "▶️", pauseClass = "btn-resume";
+            if (keyData.status === "ACTIVE") { pauseIcon = "⏸️"; pauseClass = "btn-pause"; }
+
+            card.innerHTML = `
+                <div class="card-header" style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="card-left" onclick="toggleDetails('${k}')" style="display: flex; flex-direction: column; flex: 1; cursor:pointer;">
+                        <span style="font-size: 11px; color: #888; font-weight: bold;">Key #${indexCounter}</span>
+                        <span style="font-family: monospace; color: #4ade80; font-size: 14px; font-weight: bold;">${k}</span>
+                    </div>
+                    <div class="card-right" style="display: flex; align-items: center; gap: 8px;">
+                        <span class="status-badge status-${keyData.status}" style="font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; background:${keyData.status === 'ACTIVE' ? '#4ade80' : (keyData.status === 'PAUSED' ? '#f59e0b' : '#fbbf24')}; color: black;">${keyData.status}</span>
+                        <button onclick="togglePause('${k}')" style="width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; background:${pauseClass === 'btn-pause' ? '#f59e0b' : '#10b981'}; color: white;">${pauseIcon}</button>
+                        <button onclick="deleteKey('${k}')" style="width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; background:#ef4444; color: white;">🗑️</button>
+                        <div id="arrow-${k}" onclick="toggleDetails('${k}')" style="width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: #888; cursor:pointer;">▼</div>
+                    </div>
+                </div>
+                <div class="card-body" id="body-${k}" style="display: none; padding: 15px; background-color: #0a0a0f; border-top: 1px solid #2d2d3d; font-size: 13px; color: #ccc;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed #333; padding-bottom:5px;"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed #333; padding-bottom:5px;"><span>HWID:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${keyData.hwid}</span></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed #333; padding-bottom:5px;"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
+                    <div style="display:flex; justify-content:space-between; color:#4ade80; font-size:15px; margin-top:10px;"><span>Time Left:</span> <span id="time-${k}">Calculating...</span></div>
+                </div>
+            `;
+            container.appendChild(card);
+            indexCounter++;
+        });
+
+        sortedKeys.forEach(k => startTimer(k, data[k]));
+    }
+
+    function toggleDetails(key) {
+        const body = document.getElementById(`body-${key}`);
+        const arrow = document.getElementById(`arrow-${key}`);
+        if(body.style.display === 'block') {
+            body.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+        } else {
+            body.style.display = 'block';
+            arrow.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    async function togglePause(key) {
+        const pass = document.getElementById('adminPass').value;
+        const res = await fetch(`/toggle-pause?password=${pass}&key=${key}`);
+        const data = await res.json();
+        alert(data.message);
+        loadKeys(); 
+    }
+
+    async function deleteKey(key) {
+        if (!confirm("Are you sure you want to delete this key?")) return;
+        const pass = document.getElementById('adminPass').value;
+        const res = await fetch(`/delete?password=${pass}&key=${key}`);
+        const data = await res.json();
+        alert(data.message);
+        loadKeys(); 
+    }
+
+    function startTimer(key, keyData) {
+        const timeEl = document.getElementById(`time-${key}`);
+        if (!timeEl) return;
+
+        if (keyData.status === "UNUSED") {
+            timeEl.innerText = "Waiting for first use";
+            timeEl.style.color = "#fbbf24";
+            return;
+        }
+        if (keyData.status === "PAUSED") {
+            timeEl.innerText = "ON HOLD (Paused)";
+            timeEl.style.color = "#f59e0b";
+            return;
+        }
+
+        let timeLeftMs = new Date(keyData.expires) - new Date();
+        
+        timerIntervals[key] = setInterval(() => {
+            if (timeLeftMs <= 0) {
+                timeEl.innerText = "EXPIRED";
+                timeEl.style.color = "#ef4444";
+                clearInterval(timerIntervals[key]);
+                return;
+            }
+            let totalSec = Math.floor(timeLeftMs / 1000);
+            let d = Math.floor(totalSec / (3600 * 24));
+            let h = Math.floor((totalSec % (3600 * 24)) / 3600);
+            let m = Math.floor((totalSec % 3600) / 60);
+            let s = totalSec % 60;
+            timeEl.innerText = `${d}d ${h}h ${m}m ${s}s`;
+            timeEl.style.color = "#4ade80";
+            timeLeftMs -= 1000;
+        }, 1000);
+    }
+</script>
 </body>
 </html>
