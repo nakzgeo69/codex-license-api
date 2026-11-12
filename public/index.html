@@ -16,26 +16,19 @@
             flex-direction: column;
             align-items: center;
         }
-        .container, .keys-container {
-            width: 100%;
-            max-width: 600px;
-        }
-        .container {
+        
+        /* FORM CONTAINER (Centered) */
+        .form-container {
             background-color: #1a1a24;
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 500px;
             border: 1px solid #2d2d3d;
             margin-bottom: 20px;
         }
-        h2 {
-            text-align: center;
-            color: #a855f7;
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            font-size: 20px;
-        }
+        h2 { text-align: center; color: #a855f7; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; font-size: 20px; }
         .input-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 8px; font-size: 13px; color: #a0a0b0; font-weight: 600; }
         .row { display: flex; gap: 10px; }
@@ -45,57 +38,63 @@
             background-color: #0f0f13; color: #fff; font-size: 14px; outline: none;
         }
         input:focus, select:focus { border-color: #a855f7; }
-        button.main-btn {
-            background-color: #a855f7; color: white; font-weight: bold;
-            cursor: pointer; border: none; margin-top: 10px;
-        }
+        button.main-btn { background-color: #a855f7; color: white; font-weight: bold; cursor: pointer; border: none; margin-top: 10px; }
         button.main-btn:hover { background-color: #9333ea; }
         
-        /* Listahan ng Keys */
+        /* KEYS LIST (Centered) */
+        .keys-container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; }
+        
         .key-card {
             background-color: #1a1a24; border: 1px solid #2d2d3d;
-            border-radius: 8px; padding: 15px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center;
+            border-radius: 8px; overflow: hidden;
         }
-        .key-info { display: flex; flex-direction: column; gap: 5px; }
-        .key-name { font-family: monospace; color: #4ade80; font-size: 16px; font-weight: bold; }
-        .key-status-text { font-size: 12px; color: #888; }
         
-        .action-buttons { display: flex; gap: 8px; }
-        .btn-icon {
-            width: 35px; height: 35px; border: none; border-radius: 6px;
-            cursor: pointer; font-size: 16px; display: flex;
-            justify-content: center; align-items: center;
+        /* Card Header (Pindutin para lumabas ang details) */
+        .card-header {
+            padding: 15px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.2s;
         }
+        .card-header:hover { background-color: #232330; }
+        .card-title { display: flex; flex-direction: column; }
+        .key-name { font-family: monospace; color: #4ade80; font-size: 16px; font-weight: bold; }
+        .key-index { font-size: 12px; color: #888; margin-bottom: 3px; font-weight: bold;}
+        
+        .card-controls { display: flex; align-items: center; gap: 10px; }
+        
+        /* Status Badge */
+        .status-badge {
+            font-size: 10px; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase;
+        }
+        .status-UNUSED { background-color: #fbbf24; color: #000; }
+        .status-ACTIVE { background-color: #4ade80; color: #000; }
+        .status-PAUSED { background-color: #f59e0b; color: #000; }
+        
+        .btn-icon { width: 35px; height: 35px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; display: flex; justify-content: center; align-items: center; }
         .btn-pause { background-color: #f59e0b; color: white; }
         .btn-resume { background-color: #10b981; color: white; }
         .btn-delete { background-color: #ef4444; color: white; }
-        .btn-icon:hover { opacity: 0.8; }
 
-        /* Details Modal */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100;
+        /* Card Body (Ang details na nakatago) */
+        .card-body {
+            display: none; padding: 15px; background-color: #14141c;
+            border-top: 1px solid #2d2d3d; font-size: 13px; color: #ccc;
         }
-        .modal-content {
-            background-color: #1a1a24; padding: 25px; border-radius: 12px;
-            width: 90%; max-width: 400px; border: 1px solid #a855f7;
-        }
-        .modal-content p { margin: 10px 0; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px;}
-        .modal-content span { float: right; font-weight: bold; }
-        .close-btn { background-color: #ef4444; margin-top: 15px; }
+        .card-body.active { display: block; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #333; padding-bottom: 4px; }
+        .detail-row span:last-child { font-weight: bold; color: #fff; }
+        
+        .arrow { transition: transform 0.3s; color: #888; }
+        .arrow.down { transform: rotate(180deg); }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="form-container">
     <h2>Codex Admin Panel</h2>
-    
     <div class="input-group">
         <label>Admin Password</label>
         <input type="password" id="adminPass" placeholder="Enter password...">
     </div>
-
     <div class="input-group">
         <label>Time Expiry</label>
         <div class="row">
@@ -110,25 +109,13 @@
             </select>
         </div>
     </div>
-
     <button class="main-btn" onclick="generateKey()">Generate Key</button>
 </div>
 
 <div class="keys-container" id="keysList"></div>
 
-<div class="modal" id="detailsModal">
-    <div class="modal-content">
-        <h2 style="font-size:16px;">Key Details</h2>
-        <p>Status: <span id="dStatus"></span></p>
-        <p>HWID: <span id="dHwid" style="font-size:10px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;"></span></p>
-        <p>Valid For: <span id="dValid"></span></p>
-        <p>Time Left: <span id="dTimeLeft"></span></p>
-        <button class="main-btn close-btn" onclick="closeModal()">Close</button>
-    </div>
-</div>
-
 <script>
-    let timerInterval = null;
+    let timerIntervals = {};
 
     async function generateKey() {
         const pass = document.getElementById('adminPass').value;
@@ -146,6 +133,10 @@
         const pass = document.getElementById('adminPass').value;
         if (!pass) return;
 
+        // I-clear muna yung mga lumang timers
+        for (let key in timerIntervals) clearInterval(timerIntervals[key]);
+        timerIntervals = {};
+
         const res = await fetch(`/list?password=${pass}`);
         const data = await res.json();
         const container = document.getElementById('keysList');
@@ -156,33 +147,63 @@
             return;
         }
 
-        const keys = Object.keys(data).reverse();
+        // Ayusin base sa createdAt (Pinakauna sa taas)
+        const sortedKeys = Object.keys(data).sort((a, b) => data[a].createdAt - data[b].createdAt);
         
-        keys.forEach(k => {
+        let indexCounter = 1;
+
+        sortedKeys.forEach(k => {
             const keyData = data[k];
             const card = document.createElement('div');
             card.className = 'key-card';
             
-            // Determine Icon based on status
-            let pauseIcon = "▶️";
-            let pauseClass = "btn-resume";
-            if (keyData.status === "ACTIVE") {
-                pauseIcon = "⏸️";
-                pauseClass = "btn-pause";
-            }
-
+            // Determine Icon
+            let pauseIcon = "▶️", pauseClass = "btn-resume";
+            if (keyData.status === "ACTIVE") { pauseIcon = "⏸️"; pauseClass = "btn-pause"; }
+            
+            // Generate Card HTML
             card.innerHTML = `
-                <div class="key-info" onclick="viewKey('${k}')" style="cursor:pointer;">
-                    <span class="key-name">${k}</span>
-                    <span class="key-status-text">Status: ${keyData.status}</span>
+                <div class="card-header" onclick="toggleDetails('${k}')">
+                    <div class="card-title">
+                        <span class="key-index">Key #${indexCounter}</span>
+                        <span class="key-name">${k}</span>
+                    </div>
+                    <div class="card-controls">
+                        <span class="status-badge status-${keyData.status}">${keyData.status}</span>
+                        <div class="action-buttons">
+                            <button class="btn-icon ${pauseClass}" onclick="event.stopPropagation(); togglePause('${k}')">${pauseIcon}</button>
+                            <button class="btn-icon btn-delete" onclick="event.stopPropagation(); deleteKey('${k}')">🗑️</button>
+                        </div>
+                        <span class="arrow" id="arrow-${k}">▼</span>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-icon ${pauseClass}" onclick="togglePause('${k}')">${pauseIcon}</button>
-                    <button class="btn-icon btn-delete" onclick="deleteKey('${k}')">🗑️</button>
+                <div class="card-body" id="body-${k}">
+                    <div class="detail-row"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
+                    <div class="detail-row"><span>HWID:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${keyData.hwid}</span></div>
+                    <div class="detail-row"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
+                    <div class="detail-row" style="border:none; color:#4ade80; font-size:16px; margin-top:10px;">
+                        <span>Time Left:</span> <span id="time-${k}">Calculating...</span>
+                    </div>
                 </div>
             `;
             container.appendChild(card);
+            indexCounter++;
         });
+
+        // Simulan ang timers pagka-load
+        sortedKeys.forEach(k => startTimer(k, data[k]));
+    }
+
+    function toggleDetails(key) {
+        const body = document.getElementById(`body-${key}`);
+        const arrow = document.getElementById(`arrow-${key}`);
+        if (body.classList.contains('active')) {
+            body.classList.remove('active');
+            arrow.classList.remove('down');
+        } else {
+            body.classList.add('active');
+            arrow.classList.add('down');
+        }
     }
 
     async function togglePause(key) {
@@ -190,64 +211,53 @@
         const res = await fetch(`/toggle-pause?password=${pass}&key=${key}`);
         const data = await res.json();
         alert(data.message);
-        loadKeys(); // I-reload ang UI
+        loadKeys(); 
     }
 
     async function deleteKey(key) {
-        if (!confirm("Are you sure you want to delete this key?")) return;
+        if (!confirm("Sigurado ka bang gusto mong i-delete ito?")) return;
         const pass = document.getElementById('adminPass').value;
         const res = await fetch(`/delete?password=${pass}&key=${key}`);
         const data = await res.json();
         alert(data.message);
-        loadKeys(); // I-reload ang UI
+        loadKeys(); 
     }
 
-    async function viewKey(key) {
-        const pass = document.getElementById('adminPass').value;
-        const res = await fetch(`/check?password=${pass}&key=${key}`);
-        const data = await res.json();
+    function startTimer(key, keyData) {
+        const timeEl = document.getElementById(`time-${key}`);
+        if (!timeEl) return;
 
-        document.getElementById('dStatus').innerText = data.status;
-        document.getElementById('dStatus').style.color = data.status === 'ACTIVE' ? '#4ade80' : (data.status === 'PAUSED' ? '#f59e0b' : '#fbbf24');
-        document.getElementById('dHwid').innerText = data.hwid;
-        document.getElementById('dValid').innerText = `${data.duration} ${data.unit}`;
+        if (keyData.status === "UNUSED") {
+            timeEl.innerText = "Waiting for first use";
+            timeEl.style.color = "#fbbf24";
+            return;
+        }
+        if (keyData.status === "PAUSED") {
+            timeEl.innerText = "ON HOLD (Paused)";
+            timeEl.style.color = "#f59e0b";
+            return;
+        }
+
+        let timeLeftMs = new Date(keyData.expires) - new Date();
         
-        if (timerInterval) clearInterval(timerInterval);
-        const timeLeftEl = document.getElementById('dTimeLeft');
-        
-        function updateTimer() {
-            if (data.status === "UNUSED" || data.status === "PAUSED") {
-                let msg = data.status === "UNUSED" ? "Waiting for first use..." : "PAUSED";
-                timeLeftEl.innerText = msg;
-                timeLeftEl.style.color = "#f59e0b";
-                clearInterval(timerInterval);
-                return;
-            }
-            if (data.timeLeftMs <= 0) {
-                timeLeftEl.innerText = "EXPIRED";
-                timeLeftEl.style.color = "#ef4444";
-                clearInterval(timerInterval);
+        timerIntervals[key] = setInterval(() => {
+            if (timeLeftMs <= 0) {
+                timeEl.innerText = "EXPIRED";
+                timeEl.style.color = "#ef4444";
+                clearInterval(timerIntervals[key]);
                 return;
             }
 
-            let totalSec = Math.floor(data.timeLeftMs / 1000);
+            let totalSec = Math.floor(timeLeftMs / 1000);
             let d = Math.floor(totalSec / (3600 * 24));
             let h = Math.floor((totalSec % (3600 * 24)) / 3600);
             let m = Math.floor((totalSec % 3600) / 60);
             let s = totalSec % 60;
 
-            timeLeftEl.innerText = `${d}d ${h}h ${m}m ${s}s`;
-            timeLeftEl.style.color = "#4ade80";
-            data.timeLeftMs -= 1000;
-        }
-        updateTimer();
-        timerInterval = setInterval(updateTimer, 1000);
-        document.getElementById('detailsModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('detailsModal').style.display = 'none';
-        clearInterval(timerInterval);
+            timeEl.innerText = `${d}d ${h}h ${m}m ${s}s`;
+            timeEl.style.color = "#4ade80";
+            timeLeftMs -= 1000;
+        }, 1000);
     }
 
     document.getElementById('adminPass').addEventListener('input', () => {
