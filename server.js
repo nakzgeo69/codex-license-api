@@ -4,10 +4,10 @@ const app = express();
 
 app.use(express.json());
 
-// I-serve ang index.html mula sa 'public' folder
+// I-serve ang index.html
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ITO ANG ADMIN PASSWORD MO (Walang special chars para iwas error)
+// ADMIN PASSWORD (Walang special characters para iwas error)
 const ADMIN_PASSWORD = "CodexAdmin101"; 
 let database = {}; 
 
@@ -21,7 +21,7 @@ function generateRandomString(length) {
 }
 
 // ==========================================
-// 1. GENERATE ROUTE (Tinatawag ng UI)
+// 1. GENERATE ROUTE
 // ==========================================
 app.get('/generate', (req, res) => {
     const { password, duration, unit } = req.query;
@@ -32,7 +32,6 @@ app.get('/generate', (req, res) => {
 
     const key = `CODEX-${generateRandomString(4)}-${generateRandomString(4)}`;
     
-    // I-save na "UNUSED" (Timer starts on first use)
     database[key] = {
         hwid: "WALA_PA",
         status: "UNUSED",
@@ -41,16 +40,11 @@ app.get('/generate', (req, res) => {
         expires: null
     };
 
-    res.json({ 
-        status: "success", 
-        key: key, 
-        message: "Key generated. Timer starts on first use.",
-        duration: `${duration} ${unit}`
-    });
+    res.json({ status: "success", key: key });
 });
 
 // ==========================================
-// 2. VERIFY ROUTE (Para sa Lua Script)
+// 2. VERIFY ROUTE
 // ==========================================
 app.post('/verify', (req, res) => {
     const { key, hwid } = req.body;
@@ -60,11 +54,9 @@ app.post('/verify', (req, res) => {
     const keyData = database[key];
     if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
 
-    // --- UNANG GAMIT (Dito magsisimula ang timer) ---
     if (keyData.status === "UNUSED") {
         let expires = new Date();
         
-        // Logic para sa lahat ng units
         if (keyData.unit === 'seconds') expires.setSeconds(expires.getSeconds() + keyData.duration);
         else if (keyData.unit === 'minutes') expires.setMinutes(expires.getMinutes() + keyData.duration);
         else if (keyData.unit === 'hours') expires.setHours(expires.getHours() + keyData.duration);
@@ -76,32 +68,21 @@ app.post('/verify', (req, res) => {
         keyData.hwid = hwid; 
         keyData.status = "ACTIVE";
 
-        console.log(`[ACTIVATED] Key: ${key} | HWID: ${hwid} | Expires: ${expires.toLocaleString()}`);
-
-        return res.json({ 
-            status: "success", 
-            message: "Key activated! Timer started.",
-            expires_at: expires.toLocaleString()
-        });
+        return res.json({ status: "success", message: "Key activated!" });
     }
 
-    // --- KUNG GINAGAMIT NA ---
     if (keyData.status === "ACTIVE") {
-        // Check HWID
         if (keyData.hwid !== hwid) {
             return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
         }
 
-        // Check Expiration
         const now = new Date();
         const expiryDate = new Date(keyData.expires);
-        
         if (now > expiryDate) {
-            return res.status(403).json({ status: "expired", message: "Key has expired" });
+            return res.status(403).json({ status: "expired", message: "Key expired" });
         }
 
-        const timeLeft = Math.round((expiryDate - now) / 60000); // Minutes left
-        return res.json({ status: "success", message: `License Valid. Time left: ${timeLeft} mins` });
+        return res.json({ status: "success", message: "Valid" });
     }
 });
 
@@ -110,9 +91,39 @@ app.post('/verify', (req, res) => {
 // ==========================================
 app.get('/list', (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) {
-        return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
+        return res.status(401).json({ status: "error" });
     }
     res.json(database);
+});
+
+// ==========================================
+// 4. CHECK SINGLE KEY ROUTE
+// ==========================================
+app.get('/check', (req, res) => {
+    const { password, key } = req.query;
+
+    if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ status: "error" });
+    }
+
+    const keyData = database[key];
+    if (!keyData) return res.status(404).json({ status: "error", message: "Not found" });
+
+    let timeLeftMs = 0;
+    if (keyData.status === "ACTIVE" && keyData.expires) {
+        timeLeftMs = new Date(keyData.expires) - new Date();
+        if (timeLeftMs < 0) timeLeftMs = 0;
+    }
+
+    res.json({
+        key: key,
+        status: keyData.status,
+        hwid: keyData.hwid,
+        expires: keyData.expires,
+        duration: keyData.duration,
+        unit: keyData.unit,
+        timeLeftMs: timeLeftMs
+    });
 });
 
 const PORT = process.env.PORT || 10000;
