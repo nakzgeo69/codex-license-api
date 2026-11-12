@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODEX Admin Panel</title>
+    <style>
+        body {
+            background-color: #0f0f13;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1a1a24;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #2d2d3d;
+        }
+        h2 {
+            text-align: center;
+            color: #a855f7;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #888;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background-color: #0f0f13;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #a855f7;
+        }
+        button {
+            background-color: #a855f7;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #9333ea;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #2d2d3d;
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid #a855f7;
+            word-break: break-all;
+        }
+        .result p { margin: 5px 0; font-size: 14px; }
+        .key-text {
+            color: #4ade80;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .status-badge {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Codex Admin Panel</h2>
+    
+    <div class="input-group">
+        <label>Admin Password</label>
+        <input type="password" id="adminPass" placeholder="Enter Admin Password">
+    </div>
+
+    <div class="input-group">
+        <label>Time Expiry</label>
+        <div style="display: flex; gap: 10px;">
+            <input type="number" id="duration" value="1" style="width: 40%;">
+            <select id="unit" style="width: 60%;">
+                <option value="seconds">Seconds</option>
+                <option value="minutes" selected>Minutes</option>
+                <option value="hours">Hours</option>
+                <option value="days">Days</option>
+                <option value="months">Months</option>
+                <option value="years">Years</option>
+            </select>
+        </div>
+    </div>
+
+    <button onclick="generateKey()">Generate Key</button>
+
+    <div class="result" id="resultBox">
+        <p><strong>Generated Key:</strong> <span class="key-text" id="resKey"></span></p>
+        <p><strong>Time Expiry:</strong> <span id="resTime"></span></p>
+        <p><strong>Status:</strong> <span class="status-badge">Not Used (Ready to Verify)</span></p>
+        <p><strong>Owner:</strong> GeoDevs69</p>
+    </div>
+</div>
+
+<script>
+    async function generateKey() {
+        const pass = document.getElementById('adminPass').value;
+        const duration = document.getElementById('duration').value;
+        const unit = document.getElementById('unit').value;
+
+        if (!pass) {
+            alert("Please enter Admin Password!");
+            return;
+        }
+
+        // Tinatawag natin ang server.js
+        const url = `/generate?password=${pass}&duration=${duration}&unit=${unit}`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.status === "success") {
+                document.getElementById('resKey').innerText = data.key;
+                document.getElementById('resTime').innerText = `${duration} ${unit}`;
+                document.getElementById('resultBox').style.display = 'block';
+            } else {
+                alert("Error: " + data.message);
+            }
+        } catch (error) {
+            alert("Server Error. Check Render Logs.");
+        }
+    }
+</script>
+
+</body>
+</html>
