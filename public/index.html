@@ -6,249 +6,79 @@
     <title>CODEX Admin Panel</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap');
-
         * { box-sizing: border-box; }
-        
         body {
-            background-color: #050505;
-            background-image: radial-gradient(circle at 50% 0%, #1a0b2e 0%, #050505 70%);
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            background-color: #050505; background-image: radial-gradient(circle at 50% 0%, #1a0b2e 0%, #050505 70%);
+            color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;
         }
-
-        /* TOP NAVBAR */
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: flex-start;
-        }
-        .logo-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            color: #a855f7;
-            margin: 0;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-        }
-
-        /* LOGIN CONTAINER */
-        .login-container {
-            width: 100%;
-            max-width: 350px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .lock-icon-box {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #a855f7, #6b21a8);
-            border-radius: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            margin: 0 0 30px 0;
-            letter-spacing: 2px;
-        }
+        .navbar { position: fixed; top: 0; width: 100%; padding: 15px 20px; display: flex; justify-content: flex-start; }
+        .logo-text { font-family: 'Orbitron', sans-serif; font-size: 18px; color: #a855f7; margin: 0; letter-spacing: 2px; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
+        
+        .login-container { width: 100%; max-width: 350px; display: flex; flex-direction: column; align-items: center; text-align: center; animation: fadeIn 0.8s ease-out; }
+        .lock-icon-box { width: 70px; height: 70px; background: linear-gradient(135deg, #a855f7, #6b21a8); border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 30px; margin-bottom: 20px; box-shadow: 0 0 30px rgba(168, 85, 247, 0.6); border: 1px solid rgba(255,255,255,0.2); }
+        .title { font-family: 'Orbitron', sans-serif; font-size: 24px; margin: 0 0 30px 0; letter-spacing: 2px; }
         .title span { color: #a855f7; }
-
-        /* FORM BOX WITH GLASSMORPHISM */
-        .form-box {
-            background: rgba(15, 15, 23, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 16px;
-            width: 100%;
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
+        
+        .form-box { background: rgba(15, 15, 23, 0.7); backdrop-filter: blur(10px); padding: 25px; border-radius: 16px; width: 100%; border: 1px solid rgba(168, 85, 247, 0.3); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
+        
+        input { 
+            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #333; 
+            background-color: #050505; color: #fff; font-size: 14px; outline: none; 
+            margin-bottom: 15px; transition: 0.3s; font-family: 'Inter', sans-serif; 
+            text-align: center; letter-spacing: 2px; 
         }
-
-        /* PASSWORD INPUT (CENTERED TEXT) */
-        input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background-color: #050505;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            margin-bottom: 15px;
-            transition: 0.3s;
-            font-family: 'Inter', sans-serif;
-            text-align: center; /* Ito ang nagpapa-center ng text */
-            letter-spacing: 2px;
-        }
-        input:focus { 
-            border-color: #a855f7; 
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
-        }
-
-        .sign-in-btn {
-            background: linear-gradient(to right, #a855f7, #3b82f6);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 15px;
-            font-size: 16px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
-            transition: 0.3s;
-            letter-spacing: 1px;
-        }
-        .sign-in-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.8);
-        }
-
-        .footer-text {
-            font-size: 11px;
-            color: #888;
-            margin-top: 10px;
-        }
+        input:focus { border-color: #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.3); }
+        
+        .sign-in-btn { background: linear-gradient(to right, #a855f7, #3b82f6); color: white; border: none; border-radius: 8px; padding: 15px; font-size: 16px; font-family: 'Orbitron', sans-serif; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); transition: 0.3s; letter-spacing: 1px; }
+        .sign-in-btn:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        
+        .footer-text { font-size: 11px; color: #888; margin-top: 10px; }
         .footer-text span { color: #a855f7; cursor: pointer; }
-
-        /* ADMIN PANEL (Hidden Initially) */
-        #adminPanel {
-            display: none; 
-            width: 100%; 
-            max-width: 500px; 
-            padding: 20px; 
-            animation: fadeIn 0.5s;
-        }
-
-        .admin-form-box {
-            background: rgba(15,15,23,0.8); 
-            backdrop-filter: blur(10px); 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid #a855f7; 
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
-            margin-bottom: 20px;
-        }
-
-        /* PANTay na PANTay ang duration at unit */
-        .expiry-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .expiry-row input, .expiry-row select {
-            flex: 1;
-            margin-bottom: 0;
-        }
         
-        select {
-            width: 100%; padding: 14px; border-radius: 8px; background: #050505; 
-            color: #fff; border: 1px solid #333; outline: none; 
-            text-align: center; font-family: 'Inter', sans-serif;
-        }
+        #adminPanel { display: none; width: 100%; max-width: 500px; padding: 20px; animation: fadeIn 0.5s; }
+        .admin-form-box { background: rgba(15,15,23,0.8); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid #a855f7; box-shadow: 0 0 30px rgba(168, 85, 247, 0.2); margin-bottom: 20px; }
+        
+        .expiry-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .expiry-row input, .expiry-row select { flex: 1; margin-bottom: 0; }
+        select { width: 100%; padding: 14px; border-radius: 8px; background: #050505; color: #fff; border: 1px solid #333; outline: none; text-align: center; font-family: 'Inter', sans-serif; }
         select:focus { border-color: #a855f7; box-shadow: 0 0 10px rgba(168,85,247,0.3); }
-
-        .label-text {
-            display: block; margin-bottom: 8px; font-size: 13px; color: #a0a0b0; text-align: left;
-        }
-
-        /* KEYS LIST */
-        .keys-container { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-        .key-card {
-            background: rgba(15,15,23,0.8); border: 1px solid #2d2d3d;
-            border-radius: 8px; overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        .card-header {
-            padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: 0.2s;
-        }
-        .card-header:hover { background-color: #1a1a24; }
+        .label-text { display: block; margin-bottom: 8px; font-size: 13px; color: #a0a0b0; text-align: left; }
         
+        .keys-container { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+        .key-card { background: rgba(15,15,23,0.8); border: 1px solid #2d2d3d; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .card-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .card-header:hover { background-color: #1a1a24; }
         .card-left { display: flex; flex-direction: column; flex: 1; }
         .key-index { font-size: 11px; color: #888; font-weight: bold; margin-bottom: 2px; }
         .key-name { font-family: monospace; color: #4ade80; font-size: 14px; font-weight: bold; text-shadow: 0 0 5px rgba(74, 222, 128, 0.5); }
-        
         .card-right { display: flex; align-items: center; gap: 8px; }
-        
-        .status-badge {
-            font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;
-            min-width: 60px; text-align: center;
-        }
+        .status-badge { font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; min-width: 60px; text-align: center; }
         .status-UNUSED { background-color: #fbbf24; color: #000; }
         .status-ACTIVE { background-color: #4ade80; color: #000; }
         .status-PAUSED { background-color: #f59e0b; color: #000; }
-        
-        .btn-icon { 
-            width: 32px; height: 32px; border: none; border-radius: 6px; 
-            cursor: pointer; font-size: 14px; display: flex; 
-            justify-content: center; align-items: center; padding: 0;
-        }
+        .btn-icon { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center; padding: 0; }
         .btn-pause { background-color: #f59e0b; color: white; }
         .btn-resume { background-color: #10b981; color: white; }
         .btn-delete { background-color: #ef4444; color: white; }
-        
-        .arrow-box {
-            width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;
-            color: #888; font-size: 12px; cursor: pointer; transition: 0.3s;
-        }
+        .arrow-box { width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: #888; font-size: 12px; cursor: pointer; transition: 0.3s; }
         .arrow-box.down { transform: rotate(180deg); }
-
-        .card-body {
-            display: none; padding: 15px; background-color: #0a0a0f;
-            border-top: 1px solid #2d2d3d; font-size: 13px; color: #ccc;
-        }
+        .card-body { display: none; padding: 15px; background-color: #0a0a0f; border-top: 1px solid #2d2d3d; font-size: 13px; color: #ccc; }
         .card-body.active { display: block; }
-        
-        .detail-row { 
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333; 
-        }
+        .detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333; }
         .detail-row:last-child { border-bottom: none; }
         .detail-row span:first-child { color: #a0a0b0; }
         .detail-row span:last-child { font-weight: bold; color: #fff; text-align: right; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="navbar">
-        <h1 class="logo-text">CODEX MLBB</h1>
-    </div>
+    <div class="navbar"><h1 class="logo-text">CODEX MLBB</h1></div>
 
-    <!-- LOGIN SCREEN -->
     <div class="login-container" id="loginScreen">
-        <div class="lock-icon-box">
-            <i class="fas fa-lock" style="color: white;"></i>
-        </div>
+        <div class="lock-icon-box"><i class="fas fa-lock" style="color: white;"></i></div>
         <h1 class="title">ADMIN <span>LOGIN</span></h1>
         <div class="form-box">
             <input type="password" id="adminPass" placeholder="Enter Admin Password">
@@ -257,7 +87,6 @@
         <p class="footer-text">Need access? Contact <span>GeoDevs69</span></p>
     </div>
 
-    <!-- ADMIN PANEL (Hidden Initially) -->
     <div id="adminPanel">
         <div class="admin-form-box">
             <label class="label-text">Time Expiry</label>
@@ -278,15 +107,36 @@
     </div>
 
 <script>
-    // LOGIN LOGIC
-    function login() {
+    // ==========================================
+    // ANG HASH AY HINATI SA 3 PARA MALITO SILA
+    // Totoong Hash ng "CodexAdmin101": 37db33238d80fe0d65e6e84c4e65c74cbb9f4b1d
+    // ==========================================
+    const part1 = "37db3323"; 
+    const part2 = "8d80fe0d"; 
+    const part3 = "65e6e84c4e65c74cbb9f4b1d";
+    
+    // Pagdudugtungin sa loob ng code (sila lang ang makakaalam)
+    const SECRET_HASH = part1 + part2 + part3;
+
+    async function sha1(message) {
+        const msgBuffer = new TextEncoder().encode(message);                    
+        const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer);     
+        const hashArray = Array.from(new Uint8Array(hashBuffer));              
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    async function login() {
         const pass = document.getElementById('adminPass').value;
-        if (pass === "CodexAdmin101") { // PALITAN MO ITO KUNG GUSTO MO
+        const hashedInput = await sha1(pass);
+
+        // Ikukumpara sa pinagdudugtong na hash
+        if (hashedInput === SECRET_HASH) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             loadKeys();
         } else {
-            alert("Invalid Password!");
+            alert("❌ Invalid Password!");
         }
     }
 
