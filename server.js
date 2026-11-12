@@ -5,7 +5,8 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const ADMIN_PASSWORD = "CodexAdmin101"; 
+// ITO ANG PASSWORD NA TUGMA SA INDEX.HTML MO
+const ADMIN_PASSWORD = "GeoDevs69#"; 
 let database = {}; 
 
 function generateRandomString(length) {
@@ -36,7 +37,7 @@ app.get('/generate', (req, res) => {
         unit: unit,
         expires: null,
         pausedTimeLeft: null,
-        createdAt: Date.now() // Idinagdag para may record kung kailan ginawa
+        createdAt: Date.now() 
     };
 
     res.json({ status: "success", key: key });
