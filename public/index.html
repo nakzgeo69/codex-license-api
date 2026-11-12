@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX Admin Panel</title>
+    <title>Codex Admin Panel</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap');
         * { box-sizing: border-box; }
@@ -107,26 +107,14 @@
     </div>
 
 <script>
-    const _sys_cfg = "b45a221532dc8da9aef2785a1f2605d62757";
-
-    async function sha1(message) {
-        const msgBuffer = new TextEncoder().encode(message);                    
-        const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer);     
-        const hashArray = Array.from(new Uint8Array(hashBuffer));              
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    }
-
-    async function login() {
+    function login() {
         const pass = document.getElementById('adminPass').value;
-        const hashedInput = await sha1(pass);
-
-        if (hashedInput === _sys_cfg) {
+        if (pass === "GeoDevs69#") {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             loadKeys();
         } else {
-            alert("Invalid Password!");
+            alert("❌ Invalid Password!");
         }
     }
 
