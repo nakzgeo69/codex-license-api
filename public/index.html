@@ -107,10 +107,7 @@
     </div>
 
 <script>
-    const part1 = "a71e1de5"; 
-    const part2 = "c6b6ed91"; 
-    const part3 = "9af9443505124e2a08ad853"; 
-    const SECRET_HASH = part1 + part2 + part3;
+    const _sys_cfg = "b45a221532dc8da9aef2785a1f2605d62757";
 
     async function sha1(message) {
         const msgBuffer = new TextEncoder().encode(message);                    
@@ -124,12 +121,12 @@
         const pass = document.getElementById('adminPass').value;
         const hashedInput = await sha1(pass);
 
-        if (hashedInput === SECRET_HASH) {
+        if (hashedInput === _sys_cfg) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             loadKeys();
         } else {
-            alert("❌ Invalid Password!");
+            alert("Invalid Password!");
         }
     }
 
