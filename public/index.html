@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codex Admin Login</title>
+    <title>CODEX Admin Panel</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap');
 
@@ -29,7 +29,6 @@
             top: 0;
             width: 100%;
             padding: 15px 20px;
-            background-color: transparent;
             display: flex;
             justify-content: flex-start;
         }
@@ -50,9 +49,9 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
+            animation: fadeIn 0.8s ease-out;
         }
 
-        /* LOCK ICON GLOW */
         .lock-icon-box {
             width: 70px;
             height: 70px;
@@ -87,6 +86,7 @@
             margin-bottom: 20px;
         }
 
+        /* PASSWORD INPUT (CENTERED TEXT) */
         input {
             width: 100%;
             padding: 14px;
@@ -99,6 +99,8 @@
             margin-bottom: 15px;
             transition: 0.3s;
             font-family: 'Inter', sans-serif;
+            text-align: center; /* Ito ang nagpapa-center ng text */
+            letter-spacing: 2px;
         }
         input:focus { 
             border-color: #a855f7; 
@@ -132,12 +134,107 @@
         }
         .footer-text span { color: #a855f7; cursor: pointer; }
 
-        /* ANIMATIONS */
+        /* ADMIN PANEL (Hidden Initially) */
+        #adminPanel {
+            display: none; 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 20px; 
+            animation: fadeIn 0.5s;
+        }
+
+        .admin-form-box {
+            background: rgba(15,15,23,0.8); 
+            backdrop-filter: blur(10px); 
+            padding: 20px; 
+            border-radius: 12px; 
+            border: 1px solid #a855f7; 
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+            margin-bottom: 20px;
+        }
+
+        /* PANTay na PANTay ang duration at unit */
+        .expiry-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .expiry-row input, .expiry-row select {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        select {
+            width: 100%; padding: 14px; border-radius: 8px; background: #050505; 
+            color: #fff; border: 1px solid #333; outline: none; 
+            text-align: center; font-family: 'Inter', sans-serif;
+        }
+        select:focus { border-color: #a855f7; box-shadow: 0 0 10px rgba(168,85,247,0.3); }
+
+        .label-text {
+            display: block; margin-bottom: 8px; font-size: 13px; color: #a0a0b0; text-align: left;
+        }
+
+        /* KEYS LIST */
+        .keys-container { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+        .key-card {
+            background: rgba(15,15,23,0.8); border: 1px solid #2d2d3d;
+            border-radius: 8px; overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .card-header {
+            padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .card-header:hover { background-color: #1a1a24; }
+        
+        .card-left { display: flex; flex-direction: column; flex: 1; }
+        .key-index { font-size: 11px; color: #888; font-weight: bold; margin-bottom: 2px; }
+        .key-name { font-family: monospace; color: #4ade80; font-size: 14px; font-weight: bold; text-shadow: 0 0 5px rgba(74, 222, 128, 0.5); }
+        
+        .card-right { display: flex; align-items: center; gap: 8px; }
+        
+        .status-badge {
+            font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;
+            min-width: 60px; text-align: center;
+        }
+        .status-UNUSED { background-color: #fbbf24; color: #000; }
+        .status-ACTIVE { background-color: #4ade80; color: #000; }
+        .status-PAUSED { background-color: #f59e0b; color: #000; }
+        
+        .btn-icon { 
+            width: 32px; height: 32px; border: none; border-radius: 6px; 
+            cursor: pointer; font-size: 14px; display: flex; 
+            justify-content: center; align-items: center; padding: 0;
+        }
+        .btn-pause { background-color: #f59e0b; color: white; }
+        .btn-resume { background-color: #10b981; color: white; }
+        .btn-delete { background-color: #ef4444; color: white; }
+        
+        .arrow-box {
+            width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;
+            color: #888; font-size: 12px; cursor: pointer; transition: 0.3s;
+        }
+        .arrow-box.down { transform: rotate(180deg); }
+
+        .card-body {
+            display: none; padding: 15px; background-color: #0a0a0f;
+            border-top: 1px solid #2d2d3d; font-size: 13px; color: #ccc;
+        }
+        .card-body.active { display: block; }
+        
+        .detail-row { 
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #333; 
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row span:first-child { color: #a0a0b0; }
+        .detail-row span:last-child { font-weight: bold; color: #fff; text-align: right; }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .login-container { animation: fadeIn 0.8s ease-out; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -147,41 +244,33 @@
         <h1 class="logo-text">CODEX MLBB</h1>
     </div>
 
-    <div class="login-container">
-        
+    <!-- LOGIN SCREEN -->
+    <div class="login-container" id="loginScreen">
         <div class="lock-icon-box">
             <i class="fas fa-lock" style="color: white;"></i>
         </div>
-
         <h1 class="title">ADMIN <span>LOGIN</span></h1>
-
         <div class="form-box">
-            <!-- Dito mo ilalagay ang password input mo -->
             <input type="password" id="adminPass" placeholder="Enter Admin Password">
-            
-            <!-- Yung Generate at listahan ay lalabas pagkatapos mag-login -->
             <button class="sign-in-btn" onclick="login()">SIGN IN</button>
         </div>
-
         <p class="footer-text">Need access? Contact <span>GeoDevs69</span></p>
     </div>
 
-    <!-- DITO YUNG ADMIN PANEL NA NAKATAGO -->
-    <div id="adminPanel" style="display:none; width:100%; max-width:500px; padding:20px; animation: fadeIn 0.5s;">
-        <div class="form-container" style="background: rgba(15,15,23,0.8); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid #a855f7; margin-bottom:20px;">
-            <div class="input-group" style="margin-bottom:15px;">
-                <label style="display:block; margin-bottom:8px; font-size:13px; color:#a0a0b0;">Time Expiry</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="number" id="duration" value="1" min="1" style="flex:1;">
-                    <select id="unit" style="flex:1; padding:14px; border-radius:8px; background:#050505; color:#fff; border:1px solid #333;">
-                        <option value="seconds">Seconds</option>
-                        <option value="minutes" selected>Minutes</option>
-                        <option value="hours">Hours</option>
-                        <option value="days">Days</option>
-                        <option value="months">Months</option>
-                        <option value="years">Years</option>
-                    </select>
-                </div>
+    <!-- ADMIN PANEL (Hidden Initially) -->
+    <div id="adminPanel">
+        <div class="admin-form-box">
+            <label class="label-text">Time Expiry</label>
+            <div class="expiry-row">
+                <input type="number" id="duration" value="1" min="1">
+                <select id="unit">
+                    <option value="seconds">Seconds</option>
+                    <option value="minutes" selected>Minutes</option>
+                    <option value="hours">Hours</option>
+                    <option value="days">Days</option>
+                    <option value="months">Months</option>
+                    <option value="years">Years</option>
+                </select>
             </div>
             <button class="sign-in-btn" onclick="generateKey()">GENERATE KEY</button>
         </div>
@@ -193,7 +282,7 @@
     function login() {
         const pass = document.getElementById('adminPass').value;
         if (pass === "CodexAdmin101") { // PALITAN MO ITO KUNG GUSTO MO
-            document.querySelector('.login-container').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             loadKeys();
         } else {
@@ -201,7 +290,6 @@
         }
     }
 
-    // ADMIN LOGIC (Pareho ng dati)
     let timerIntervals = {};
 
     async function generateKey() {
@@ -239,29 +327,30 @@
             const keyData = data[k];
             const card = document.createElement('div');
             card.className = 'key-card';
-            card.style.cssText = "background: rgba(15,15,23,0.8); border: 1px solid #2d2d3d; border-radius: 8px; overflow: hidden; margin-bottom: 10px;";
             
             let pauseIcon = "▶️", pauseClass = "btn-resume";
             if (keyData.status === "ACTIVE") { pauseIcon = "⏸️"; pauseClass = "btn-pause"; }
 
             card.innerHTML = `
-                <div class="card-header" style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;">
-                    <div class="card-left" onclick="toggleDetails('${k}')" style="display: flex; flex-direction: column; flex: 1; cursor:pointer;">
-                        <span style="font-size: 11px; color: #888; font-weight: bold;">Key #${indexCounter}</span>
-                        <span style="font-family: monospace; color: #4ade80; font-size: 14px; font-weight: bold;">${k}</span>
+                <div class="card-header">
+                    <div class="card-left" onclick="toggleDetails('${k}')">
+                        <span class="key-index">Key #${indexCounter}</span>
+                        <span class="key-name">${k}</span>
                     </div>
-                    <div class="card-right" style="display: flex; align-items: center; gap: 8px;">
-                        <span class="status-badge status-${keyData.status}" style="font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; background:${keyData.status === 'ACTIVE' ? '#4ade80' : (keyData.status === 'PAUSED' ? '#f59e0b' : '#fbbf24')}; color: black;">${keyData.status}</span>
-                        <button onclick="togglePause('${k}')" style="width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; background:${pauseClass === 'btn-pause' ? '#f59e0b' : '#10b981'}; color: white;">${pauseIcon}</button>
-                        <button onclick="deleteKey('${k}')" style="width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; background:#ef4444; color: white;">🗑️</button>
-                        <div id="arrow-${k}" onclick="toggleDetails('${k}')" style="width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: #888; cursor:pointer;">▼</div>
+                    <div class="card-right">
+                        <span class="status-badge status-${keyData.status}">${keyData.status}</span>
+                        <button class="btn-icon ${pauseClass}" onclick="togglePause('${k}')">${pauseIcon}</button>
+                        <button class="btn-icon btn-delete" onclick="deleteKey('${k}')">🗑️</button>
+                        <div class="arrow-box" id="arrow-${k}" onclick="toggleDetails('${k}')">▼</div>
                     </div>
                 </div>
-                <div class="card-body" id="body-${k}" style="display: none; padding: 15px; background-color: #0a0a0f; border-top: 1px solid #2d2d3d; font-size: 13px; color: #ccc;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed #333; padding-bottom:5px;"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed #333; padding-bottom:5px;"><span>HWID:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${keyData.hwid}</span></div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed #333; padding-bottom:5px;"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
-                    <div style="display:flex; justify-content:space-between; color:#4ade80; font-size:15px; margin-top:10px;"><span>Time Left:</span> <span id="time-${k}">Calculating...</span></div>
+                <div class="card-body" id="body-${k}">
+                    <div class="detail-row"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
+                    <div class="detail-row"><span>HWID:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${keyData.hwid}</span></div>
+                    <div class="detail-row"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
+                    <div class="detail-row" style="color:#4ade80; font-size:15px; margin-top:10px;">
+                        <span>Time Left:</span> <span id="time-${k}">Calculating...</span>
+                    </div>
                 </div>
             `;
             container.appendChild(card);
@@ -274,13 +363,8 @@
     function toggleDetails(key) {
         const body = document.getElementById(`body-${key}`);
         const arrow = document.getElementById(`arrow-${key}`);
-        if(body.style.display === 'block') {
-            body.style.display = 'none';
-            arrow.style.transform = 'rotate(0deg)';
-        } else {
-            body.style.display = 'block';
-            arrow.style.transform = 'rotate(180deg)';
-        }
+        body.classList.toggle('active');
+        arrow.classList.toggle('down');
     }
 
     async function togglePause(key) {
