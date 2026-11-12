@@ -99,8 +99,19 @@
             border-top: 1px solid #2d2d3d; font-size: 13px; color: #ccc;
         }
         .card-body.active { display: block; }
-        .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #333; padding-bottom: 4px; }
-        .detail-row span:last-child { font-weight: bold; color: #fff; }
+        
+        /* Inayos ang details row para pantay at sakop lahat */
+        .detail-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 8px; 
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #333; 
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row span:first-child { color: #a0a0b0; }
+        .detail-row span:last-child { font-weight: bold; color: #fff; text-align: right; }
     </style>
 </head>
 <body>
@@ -191,7 +202,7 @@
                     <div class="detail-row"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
                     <div class="detail-row"><span>HWID:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${keyData.hwid}</span></div>
                     <div class="detail-row"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
-                    <div class="detail-row" style="border:none; color:#4ade80; font-size:16px; margin-top:10px;">
+                    <div class="detail-row" style="color:#4ade80; font-size:15px; margin-top:10px;">
                         <span>Time Left:</span> <span id="time-${k}">Calculating...</span>
                     </div>
                 </div>
