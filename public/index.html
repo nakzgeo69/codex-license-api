@@ -17,7 +17,7 @@
             align-items: center;
         }
         
-        /* FORM CONTAINER (Centered) */
+        /* FORM CONTAINER */
         .form-container {
             background-color: #1a1a24;
             padding: 25px;
@@ -41,7 +41,7 @@
         button.main-btn { background-color: #a855f7; color: white; font-weight: bold; cursor: pointer; border: none; margin-top: 10px; }
         button.main-btn:hover { background-color: #9333ea; }
         
-        /* KEYS LIST (Centered) */
+        /* KEYS LIST */
         .keys-container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; }
         
         .key-card {
@@ -49,32 +49,51 @@
             border-radius: 8px; overflow: hidden;
         }
         
-        /* Card Header (Pindutin para lumabas ang details) */
+        /* HORIZONTAL LAYOUT PARA SA HEADER */
         .card-header {
-            padding: 15px; display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;
             cursor: pointer; transition: 0.2s;
         }
         .card-header:hover { background-color: #232330; }
-        .card-title { display: flex; flex-direction: column; }
-        .key-name { font-family: monospace; color: #4ade80; font-size: 16px; font-weight: bold; }
-        .key-index { font-size: 12px; color: #888; margin-bottom: 3px; font-weight: bold;}
         
-        .card-controls { display: flex; align-items: center; gap: 10px; }
+        /* Kaliwang Bahagi (Key Name) */
+        .card-left {
+            display: flex; flex-direction: column; flex: 1;
+        }
+        .key-index { font-size: 11px; color: #888; font-weight: bold; margin-bottom: 2px; }
+        .key-name { font-family: monospace; color: #4ade80; font-size: 14px; font-weight: bold; }
         
-        /* Status Badge */
+        /* Kanang Bahagi (Status, Buttons, Arrow) */
+        .card-right {
+            display: flex; align-items: center; gap: 8px;
+        }
+        
         .status-badge {
-            font-size: 10px; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase;
+            font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;
+            min-width: 60px; text-align: center;
         }
         .status-UNUSED { background-color: #fbbf24; color: #000; }
         .status-ACTIVE { background-color: #4ade80; color: #000; }
         .status-PAUSED { background-color: #f59e0b; color: #000; }
         
-        .btn-icon { width: 35px; height: 35px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; display: flex; justify-content: center; align-items: center; }
+        /* Pantay-pantay na Buttons */
+        .btn-icon { 
+            width: 32px; height: 32px; border: none; border-radius: 6px; 
+            cursor: pointer; font-size: 14px; display: flex; 
+            justify-content: center; align-items: center; padding: 0;
+        }
         .btn-pause { background-color: #f59e0b; color: white; }
         .btn-resume { background-color: #10b981; color: white; }
         .btn-delete { background-color: #ef4444; color: white; }
+        
+        /* Arrow */
+        .arrow-box {
+            width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;
+            color: #888; font-size: 12px; cursor: pointer;
+        }
+        .arrow-box.down { transform: rotate(180deg); }
 
-        /* Card Body (Ang details na nakatago) */
+        /* Hidden Details Area */
         .card-body {
             display: none; padding: 15px; background-color: #14141c;
             border-top: 1px solid #2d2d3d; font-size: 13px; color: #ccc;
@@ -82,9 +101,6 @@
         .card-body.active { display: block; }
         .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #333; padding-bottom: 4px; }
         .detail-row span:last-child { font-weight: bold; color: #fff; }
-        
-        .arrow { transition: transform 0.3s; color: #888; }
-        .arrow.down { transform: rotate(180deg); }
     </style>
 </head>
 <body>
@@ -133,7 +149,6 @@
         const pass = document.getElementById('adminPass').value;
         if (!pass) return;
 
-        // I-clear muna yung mga lumang timers
         for (let key in timerIntervals) clearInterval(timerIntervals[key]);
         timerIntervals = {};
 
@@ -147,9 +162,7 @@
             return;
         }
 
-        // Ayusin base sa createdAt (Pinakauna sa taas)
         const sortedKeys = Object.keys(data).sort((a, b) => data[a].createdAt - data[b].createdAt);
-        
         let indexCounter = 1;
 
         sortedKeys.forEach(k => {
@@ -157,24 +170,21 @@
             const card = document.createElement('div');
             card.className = 'key-card';
             
-            // Determine Icon
             let pauseIcon = "▶️", pauseClass = "btn-resume";
             if (keyData.status === "ACTIVE") { pauseIcon = "⏸️"; pauseClass = "btn-pause"; }
-            
-            // Generate Card HTML
+
+            // Horizontal Layout
             card.innerHTML = `
-                <div class="card-header" onclick="toggleDetails('${k}')">
-                    <div class="card-title">
+                <div class="card-header">
+                    <div class="card-left" onclick="toggleDetails('${k}')">
                         <span class="key-index">Key #${indexCounter}</span>
                         <span class="key-name">${k}</span>
                     </div>
-                    <div class="card-controls">
+                    <div class="card-right">
                         <span class="status-badge status-${keyData.status}">${keyData.status}</span>
-                        <div class="action-buttons">
-                            <button class="btn-icon ${pauseClass}" onclick="event.stopPropagation(); togglePause('${k}')">${pauseIcon}</button>
-                            <button class="btn-icon btn-delete" onclick="event.stopPropagation(); deleteKey('${k}')">🗑️</button>
-                        </div>
-                        <span class="arrow" id="arrow-${k}">▼</span>
+                        <button class="btn-icon ${pauseClass}" onclick="togglePause('${k}')">${pauseIcon}</button>
+                        <button class="btn-icon btn-delete" onclick="deleteKey('${k}')">🗑️</button>
+                        <div class="arrow-box" id="arrow-${k}" onclick="toggleDetails('${k}')">▼</div>
                     </div>
                 </div>
                 <div class="card-body" id="body-${k}">
@@ -190,20 +200,14 @@
             indexCounter++;
         });
 
-        // Simulan ang timers pagka-load
         sortedKeys.forEach(k => startTimer(k, data[k]));
     }
 
     function toggleDetails(key) {
         const body = document.getElementById(`body-${key}`);
         const arrow = document.getElementById(`arrow-${key}`);
-        if (body.classList.contains('active')) {
-            body.classList.remove('active');
-            arrow.classList.remove('down');
-        } else {
-            body.classList.add('active');
-            arrow.classList.add('down');
-        }
+        body.classList.toggle('active');
+        arrow.classList.toggle('down');
     }
 
     async function togglePause(key) {
@@ -215,7 +219,7 @@
     }
 
     async function deleteKey(key) {
-        if (!confirm("Sigurado ka bang gusto mong i-delete ito?")) return;
+        if (!confirm("Are you sure you want to delete this key?")) return;
         const pass = document.getElementById('adminPass').value;
         const res = await fetch(`/delete?password=${pass}&key=${key}`);
         const data = await res.json();
@@ -247,13 +251,11 @@
                 clearInterval(timerIntervals[key]);
                 return;
             }
-
             let totalSec = Math.floor(timeLeftMs / 1000);
             let d = Math.floor(totalSec / (3600 * 24));
             let h = Math.floor((totalSec % (3600 * 24)) / 3600);
             let m = Math.floor((totalSec % 3600) / 60);
             let s = totalSec % 60;
-
             timeEl.innerText = `${d}d ${h}h ${m}m ${s}s`;
             timeEl.style.color = "#4ade80";
             timeLeftMs -= 1000;
