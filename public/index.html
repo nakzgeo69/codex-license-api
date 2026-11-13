@@ -9,7 +9,6 @@
         * { box-sizing: border-box; }
         
         body {
-            /* Dark purple tint background */
             background-color: #030005; 
             background-image: radial-gradient(circle at 50% 0%, #2e0a4f 0%, #030005 60%);
             color: #fff; 
@@ -65,21 +64,20 @@
         
         /* LOGO BOX STYLE */
         .hero-icon, .lock-icon-box {
-            width: 100px; /* Pinalaki ng konti */
-            height: 100px;
-            background: transparent; /* Transparent na para lumabas ang image */
+            width: 110px;
+            height: 110px;
+            background: transparent; 
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 0 auto 15px auto;
         }
 
-        .hero-icon img, .lock-icon-box img {
+        .hero-icon svg, .lock-icon-box svg {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            /* Glow effect sa mismong image */
-            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.8)); 
+            /* Neon glow effect */
+            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.8)) drop-shadow(0 0 30px rgba(168, 85, 247, 0.4)); 
         }
         
         .hero-title {
@@ -320,9 +318,21 @@
 
     <!-- LOGIN SCREEN -->
     <div class="login-container" id="loginScreen">
-        <!-- LOGO SA LOGIN -->
+        <!-- VECTOR LOGO (SVG) PARA HINDI MAWALA -->
         <div class="lock-icon-box">
-            <img src="https://i.ibb.co/84R90TKX/ec3c737f1e0c.png" alt="Codex Logo">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shield Outline -->
+                <path d="M50 10 L85 25 L85 55 C85 75 50 90 50 90 C50 90 15 75 15 55 L15 25 Z" fill="none" stroke="#d946ef" stroke-width="3" />
+                <!-- Inner Shield -->
+                <path d="M50 18 L78 30 L78 55 C78 70 50 82 50 82 C50 82 22 70 22 55 L22 30 Z" fill="none" stroke="#a855f7" stroke-width="2" />
+                <!-- Lock Body -->
+                <rect x="38" y="50" width="24" height="20" rx="4" fill="#d946ef" />
+                <!-- Lock Shackle -->
+                <path d="M42 50 V40 A8 8 0 0 1 58 40 V50" fill="none" stroke="#d946ef" stroke-width="4" />
+                <!-- Keyhole -->
+                <circle cx="50" cy="58" r="3" fill="#000" />
+                <line x1="50" y1="58" x2="50" y2="65" stroke="#000" stroke-width="2" />
+            </svg>
         </div>
         <h1 class="hero-title" style="font-size: 22px; margin-bottom: 20px;">ADMIN <span>LOGIN</span></h1>
         <div class="form-box">
@@ -337,9 +347,16 @@
         
         <!-- HERO HEADER -->
         <div class="hero-header">
-            <!-- LOGO SA PANEL -->
+            <!-- VECTOR LOGO (SVG) SA PANEL -->
             <div class="hero-icon">
-                <img src="https://i.ibb.co/84R90TKX/ec3c737f1e0c.png" alt="Codex Logo">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 10 L85 25 L85 55 C85 75 50 90 50 90 C50 90 15 75 15 55 L15 25 Z" fill="none" stroke="#d946ef" stroke-width="3" />
+                    <path d="M50 18 L78 30 L78 55 C78 70 50 82 50 82 C50 82 22 70 22 55 L22 30 Z" fill="none" stroke="#a855f7" stroke-width="2" />
+                    <rect x="38" y="50" width="24" height="20" rx="4" fill="#d946ef" />
+                    <path d="M42 50 V40 A8 8 0 0 1 58 40 V50" fill="none" stroke="#d946ef" stroke-width="4" />
+                    <circle cx="50" cy="58" r="3" fill="#000" />
+                    <line x1="50" y1="58" x2="50" y2="65" stroke="#000" stroke-width="2" />
+                </svg>
             </div>
             <h1 class="hero-title">ADMIN <span>PANEL</span></h1>
             <p class="hero-subtitle">Generate and manage your license keys</p>
