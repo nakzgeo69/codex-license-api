@@ -1,25 +1,22 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const crypto = require('crypto'); // BAGONG DAGDAG PARA SA SHA-1
+const crypto = require('crypto'); 
 const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ITO ANG SHA-1 HASH NG "GeoDevs69"
+// SHA-1 HASH ng "GeoDevs69"
 const ADMIN_HASH = "8a9eba55536f499ead8b472e234820b7cb4e5d94"; 
 
-// ==========================================
 // MONGODB CONNECTION
-// ==========================================
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://geodevz69:GeoDevs69@cluster0.leanvjg.mongodb.net/licenseDB?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ Connected to MongoDB Atlas!'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Schema para sa License Keys
 const keySchema = new mongoose.Schema({
     key: { type: String, unique: true, required: true },
     hwid: { type: String, default: "WALA_PA" },
@@ -42,15 +39,16 @@ function generateRandomString(length) {
     return result;
 }
 
-// ==========================================
-// 0. SECURE LOGIN ROUTE (BAGO)
-// ==========================================
+// VERIFY LOGIN ROUTE
 app.post('/login', (req, res) => {
     const { password } = req.body;
     
-    // Iha-hash ng server yung tinype ng user para ikumpara sa ADMIN_HASH
+    if (!password) return res.status(400).json({ status: "error", message: "No password" });
+    
+    // Iha-hash ng server yung tinype
     const inputHash = crypto.createHash('sha1').update(password).digest('hex');
     
+    // Ikukumpara sa hash
     if (inputHash === ADMIN_HASH) {
         res.json({ status: "success" });
     } else {
@@ -58,20 +56,16 @@ app.post('/login', (req, res) => {
     }
 });
 
-// ==========================================
-// 1. GENERATE ROUTE
-// ==========================================
+// GENERATE ROUTE (Naka-verify pa rin sa server)
 app.get('/generate', async (req, res) => {
     const { password, duration, unit } = req.query;
 
-    // I-verify pa rin ang password sa server bago mag-generate
     const inputHash = crypto.createHash('sha1').update(password).digest('hex');
     if (inputHash !== ADMIN_HASH) {
         return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
     }
 
     const key = `CODEX-${generateRandomString(4)}-${generateRandomString(4)}`;
-    
     const newKey = new LicenseKey({
         key: key,
         duration: parseInt(duration),
@@ -82,14 +76,11 @@ app.get('/generate', async (req, res) => {
         await newKey.save();
         res.json({ status: "success", key: key });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error", message: "Database Error" });
     }
 });
 
-// ==========================================
-// 2. VERIFY ROUTE (Lua Script)
-// ==========================================
+// VERIFY ROUTE (Para sa Lua Script)
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -98,9 +89,7 @@ app.post('/verify', async (req, res) => {
         const keyData = await LicenseKey.findOne({ key: key });
         if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
 
-        if (keyData.status === "PAUSED") {
-            return res.status(403).json({ status: "paused", message: "Key Successfully Hold!" });
-        }
+        if (keyData.status === "PAUSED") return res.status(403).json({ status: "paused", message: "Key Successfully Hold!" });
 
         if (keyData.status === "UNUSED") {
             let expires = new Date();
@@ -115,63 +104,44 @@ app.post('/verify', async (req, res) => {
             keyData.hwid = hwid; 
             keyData.status = "ACTIVE";
             await keyData.save();
-
             return res.json({ status: "success", message: "Key activated!" });
         }
 
         if (keyData.status === "ACTIVE") {
             if (keyData.hwid !== hwid) return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
-            
-            const now = new Date();
-            if (now > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
-            
+            if (new Date() > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
             return res.json({ status: "success", message: "Valid" });
         }
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error", message: "Server Error" });
     }
 });
 
-// ==========================================
-// 3. ADMIN LIST ROUTE
-// ==========================================
+// LIST ROUTE
 app.get('/list', async (req, res) => {
     const { password } = req.query;
     const inputHash = crypto.createHash('sha1').update(password).digest('hex');
-    
     if (inputHash !== ADMIN_HASH) return res.status(401).json({ status: "error" });
     
     try {
         const keys = await LicenseKey.find();
         const formattedData = {};
-        
         keys.forEach(k => {
             formattedData[k.key] = {
-                hwid: k.hwid,
-                status: k.status,
-                duration: k.duration,
-                unit: k.unit,
-                expires: k.expires,
-                pausedTimeLeft: k.pausedTimeLeft,
-                createdAt: k.createdAt.getTime()
+                hwid: k.hwid, status: k.status, duration: k.duration, unit: k.unit,
+                expires: k.expires, pausedTimeLeft: k.pausedTimeLeft, createdAt: k.createdAt.getTime()
             };
         });
-        
         res.json(formattedData);
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error" });
     }
 });
 
-// ==========================================
-// 4. PAUSE / RESUME / DELETE
-// ==========================================
+// PAUSE / RESUME
 app.get('/toggle-pause', async (req, res) => {
     const { password, key } = req.query;
     const inputHash = crypto.createHash('sha1').update(password).digest('hex');
-    
     if (inputHash !== ADMIN_HASH) return res.status(401).json({ status: "error" });
 
     try {
@@ -197,31 +167,24 @@ app.get('/toggle-pause', async (req, res) => {
         }
         res.json({ status: "error", message: "Cannot pause UNUSED key" });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error" });
     }
 });
 
+// DELETE
 app.get('/delete', async (req, res) => {
     const { password, key } = req.query;
     const inputHash = crypto.createHash('sha1').update(password).digest('hex');
-    
     if (inputHash !== ADMIN_HASH) return res.status(401).json({ status: "error" });
     
     try {
         const deleted = await LicenseKey.findOneAndDelete({ key: key });
-        if (deleted) {
-            return res.json({ status: "success", message: "Keys Successfully Deleted" });
-        }
+        if (deleted) return res.json({ status: "success", message: "Keys Successfully Deleted" });
         res.status(404).json({ status: "error", message: "Not found" });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error" });
     }
 });
 
-// ==========================================
-// START SERVER
-// ==========================================
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
