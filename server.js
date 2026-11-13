@@ -1,19 +1,18 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const crypto = require('crypto'); // BAGONG DAGDAG PARA SA SHA-1
 const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ITO ANG PASSWORD NA TUGMA SA INDEX.HTML MO
-const ADMIN_PASSWORD = "GeoDevs69"; 
+// ITO ANG SHA-1 HASH NG "GeoDevs69"
+const ADMIN_HASH = "8a9eba55536f499ead8b472e234820b7cb4e5d94"; 
 
 // ==========================================
 // MONGODB CONNECTION
 // ==========================================
-// Kinukuha ang connection string sa Render Environment Variable.
-// Kung wala, mag-fa-fallback sa hardcoded (para sa testing).
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://geodevz69:GeoDevs69@cluster0.leanvjg.mongodb.net/licenseDB?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
@@ -44,12 +43,30 @@ function generateRandomString(length) {
 }
 
 // ==========================================
+// 0. SECURE LOGIN ROUTE (BAGO)
+// ==========================================
+app.post('/login', (req, res) => {
+    const { password } = req.body;
+    
+    // Iha-hash ng server yung tinype ng user para ikumpara sa ADMIN_HASH
+    const inputHash = crypto.createHash('sha1').update(password).digest('hex');
+    
+    if (inputHash === ADMIN_HASH) {
+        res.json({ status: "success" });
+    } else {
+        res.status(401).json({ status: "error", message: "Invalid Password" });
+    }
+});
+
+// ==========================================
 // 1. GENERATE ROUTE
 // ==========================================
 app.get('/generate', async (req, res) => {
     const { password, duration, unit } = req.query;
 
-    if (password !== ADMIN_PASSWORD) {
+    // I-verify pa rin ang password sa server bago mag-generate
+    const inputHash = crypto.createHash('sha1').update(password).digest('hex');
+    if (inputHash !== ADMIN_HASH) {
         return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
     }
 
@@ -120,7 +137,10 @@ app.post('/verify', async (req, res) => {
 // 3. ADMIN LIST ROUTE
 // ==========================================
 app.get('/list', async (req, res) => {
-    if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
+    const { password } = req.query;
+    const inputHash = crypto.createHash('sha1').update(password).digest('hex');
+    
+    if (inputHash !== ADMIN_HASH) return res.status(401).json({ status: "error" });
     
     try {
         const keys = await LicenseKey.find();
@@ -150,7 +170,9 @@ app.get('/list', async (req, res) => {
 // ==========================================
 app.get('/toggle-pause', async (req, res) => {
     const { password, key } = req.query;
-    if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
+    const inputHash = crypto.createHash('sha1').update(password).digest('hex');
+    
+    if (inputHash !== ADMIN_HASH) return res.status(401).json({ status: "error" });
 
     try {
         const keyData = await LicenseKey.findOne({ key: key });
@@ -182,7 +204,9 @@ app.get('/toggle-pause', async (req, res) => {
 
 app.get('/delete', async (req, res) => {
     const { password, key } = req.query;
-    if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
+    const inputHash = crypto.createHash('sha1').update(password).digest('hex');
+    
+    if (inputHash !== ADMIN_HASH) return res.status(401).json({ status: "error" });
     
     try {
         const deleted = await LicenseKey.findOneAndDelete({ key: key });
