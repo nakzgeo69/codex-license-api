@@ -377,24 +377,23 @@
     </div>
 
 <script>
-    // WALA NANG PASSWORD DITO! Nasa server na.
+    const _h = "8a9eba55536f499ead8b472e234820b7cb4e5d94";
+    let currentPassword = ""; 
     let timerIntervals = {};
-    let currentPassword = ""; // Pansamantalang itatago ang password para sa API calls
+
+    // Function para mag-hash ng input (SHA-1)
+    async function _sha1(msg) {
+        const buf = new TextEncoder().encode(msg);
+        const hash = await crypto.subtle.digest('SHA-1', buf);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     async function login() {
         const pass = document.getElementById('adminPass').value;
+        const inputHash = await _sha1(pass);
         
-        // Magpapadala sa server para icheck
-        const res = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: pass })
-        });
-        
-        const data = await res.json();
-        
-        if (data.status === "success") {
-            currentPassword = pass; // I-save sa memory para magamit sa /list at /generate
+        if (inputHash === _h) {
+            currentPassword = pass; // I-save ang totoong pass para sa API calls
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'flex';
             loadKeys();
