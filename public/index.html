@@ -134,24 +134,12 @@
     </div>
 
 <script>
-    // Dito natin itatago ang password para sa API calls
-    let currentPassword = ""; 
+    const ADMIN_PASSWORD = "GeoDevs69"; 
     let timerIntervals = {};
 
-    async function login() {
+    function login() {
         const pass = document.getElementById('adminPass').value;
-        
-        // Magpapadala sa server para icheck
-        const res = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: pass })
-        });
-        
-        const data = await res.json();
-        
-        if (data.status === "success") {
-            currentPassword = pass; 
+        if (pass === ADMIN_PASSWORD) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'flex';
             loadKeys();
@@ -164,7 +152,7 @@
         const duration = document.getElementById('duration').value;
         const unit = document.getElementById('unit').value;
         
-        const res = await fetch(`/generate?password=${currentPassword}&duration=${duration}&unit=${unit}`);
+        const res = await fetch(`/generate?password=${ADMIN_PASSWORD}&duration=${duration}&unit=${unit}`);
         const data = await res.json();
         
         if (data.status === "success") {
@@ -175,7 +163,7 @@
     }
 
     async function loadKeys() {
-        const res = await fetch(`/list?password=${currentPassword}`);
+        const res = await fetch(`/list?password=${ADMIN_PASSWORD}`);
         const data = await res.json();
         const container = document.getElementById('keysList');
         container.innerHTML = "";
@@ -236,7 +224,7 @@
     }
 
     async function togglePause(key) {
-        const res = await fetch(`/toggle-pause?password=${currentPassword}&key=${key}`);
+        const res = await fetch(`/toggle-pause?password=${ADMIN_PASSWORD}&key=${key}`);
         const data = await res.json();
         alert(data.message);
         loadKeys(); 
@@ -244,7 +232,7 @@
 
     async function deleteKey(key) {
         if (!confirm("Are you sure you want to delete this key?")) return;
-        const res = await fetch(`/delete?password=${currentPassword}&key=${key}`);
+        const res = await fetch(`/delete?password=${ADMIN_PASSWORD}&key=${key}`);
         const data = await res.json();
         alert(data.message);
         loadKeys(); 
