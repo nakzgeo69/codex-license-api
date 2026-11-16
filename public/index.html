@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX VIP PANEL</title>
+    <title>CODEX MAIN ADMIN PANEL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap');
         * { box-sizing: border-box; }
@@ -13,6 +13,7 @@
         .logo-text { font-family: 'Orbitron', sans-serif; font-size: 20px; color: #c084fc; margin: 0; letter-spacing: 3px; text-shadow: 0 0 20px rgba(168, 85, 247, 1); text-align: center; }
         .logout-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; color: #c084fc; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: 0.3s; display: none; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-weight: 600; position: absolute; right: 20px; }
         .logout-btn:hover { background: rgba(168, 85, 247, 0.4); color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+        
         .login-container { position: relative; z-index: 10; width: 100%; max-width: 350px; display: flex; flex-direction: column; align-items: center; text-align: center; animation: fadeIn 0.8s ease-out; margin-top: 50px; }
         .form-box { background: rgba(15, 15, 23, 0.6); backdrop-filter: blur(20px); padding: 60px 30px 30px 30px; border-radius: 20px; width: 100%; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(168, 85, 247, 0.1); position: relative; display: flex; flex-direction: column; align-items: center; }
         .logo-overlay { position: absolute; top: -65px; width: 130px; height: 130px; background: transparent; display: flex; justify-content: center; align-items: center; }
@@ -25,12 +26,20 @@
         .sign-in-btn:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(217, 70, 239, 0.8); }
         .footer-text { margin-top: 25px; font-size: 12px; color: #888; }
         .footer-text span { color: #c084fc; font-weight: bold; }
+        
         .main-container { position: relative; z-index: 10; width: 100%; max-width: 500px; padding: 80px 20px 20px 20px; display: flex; flex-direction: column; align-items: center; animation: fadeIn 0.8s ease-out; max-height: 100vh; }
         .hero-header { text-align: center; margin-bottom: 15px; width: 100%; flex-shrink: 0; }
         .banner-image { width: 100%; height: auto; max-height: 150px; object-fit: cover; display: block; border-radius: 15px; margin: 0 auto 15px auto; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); border: 1px solid rgba(168, 85, 247, 0.3); }
         .hero-title { font-family: 'Orbitron', sans-serif; font-size: 24px; margin: 0 0 5px 0; letter-spacing: 2px; }
         .hero-title span { color: #c084fc; text-shadow: 0 0 20px rgba(168, 85, 247, 1); }
         .hero-subtitle { font-size: 12px; color: #a0a0b0; margin: 0; letter-spacing: 1px; }
+        
+    
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; flex-shrink: 0; }
+        .stat-card { background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        .stat-label { font-size: 9px; color: #a0a0b0; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px; }
+        .stat-value { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: bold; }
+
         .admin-form-box { background: rgba(15,15,23,0.7); backdrop-filter: blur(20px); padding: 15px; border-radius: 12px; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); width: 100%; margin-bottom: 15px; flex-shrink: 0; }
         .expiry-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: stretch; }
         .expiry-row input, .expiry-row select { flex: 1; width: 0; height: 45px; margin: 0 !important; padding: 0 15px; border-radius: 8px; background: #050505; color: #fff; border: 1px solid rgba(168, 85, 247, 0.3); outline: none; text-align: center; font-family: 'Inter', sans-serif; font-size: 14px; -webkit-appearance: none; -moz-appearance: none; appearance: none; transition: 0.3s; }
@@ -39,19 +48,19 @@
         .label-text { display: block; margin-bottom: 8px; font-size: 11px; color: #c084fc; text-align: left; font-weight: 600; letter-spacing: 1px; }
         .sign-in-btn { background: linear-gradient(135deg, #a855f7, #d946ef); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-family: 'Orbitron', sans-serif; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 0 20px rgba(217, 70, 239, 0.4); transition: 0.3s; letter-spacing: 1px; }
         .sign-in-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(217, 70, 239, 0.7); }
-        .tab-container { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; flex-shrink: 0; }
-        .tab-btn { flex: 1; padding: 10px; background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.2); color: #a0a0b0; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-family: 'Inter', sans-serif; }
-        .tab-btn.active { background: linear-gradient(to right, #a855f7, #d946ef); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(168,85,247,0.5); }
+        
         .keys-header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px; flex-shrink: 0; }
         .keys-section-title { font-size: 11px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 2px; text-align: left; font-weight: bold; margin: 0; }
         .view-all-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-weight: 600; }
         .view-all-btn:hover { background: rgba(168, 85, 247, 0.4); color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
         .view-all-btn i { transition: 0.3s; font-size: 9px; }
         .view-all-btn.open i { transform: rotate(180deg); }
+        
         .keys-container { width: 100%; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex: 1; padding-right: 5px; padding-bottom: 10px; }
         .keys-container::-webkit-scrollbar { width: 4px; }
         .keys-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
         .keys-container::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 10px; }
+        
         .key-card { background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4); transition: 0.3s; flex-shrink: 0; }
         .key-card:hover { border-color: #a855f7; box-shadow: 0 5px 20px rgba(168, 85, 247, 0.2); }
         .card-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
@@ -75,15 +84,18 @@
         .btn-delete { background-color: #ef4444; color: white; }
         .arrow-box { width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; color: #a0a0b0; font-size: 10px; cursor: pointer; transition: 0.3s; }
         .arrow-box.down { transform: rotate(180deg); color: #fff; }
+        
         .card-body { display: none; padding: 12px 15px; background-color: rgba(10, 10, 15, 0.9); border-top: 1px solid rgba(168, 85, 247, 0.2); font-size: 12px; color: #ccc; }
         .card-body.active { display: block; }
         .detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed rgba(168, 85, 247, 0.3); }
         .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .detail-row span:first-child { color: #a0a0b0; font-weight: 600; }
         .detail-row span:last-child { font-weight: bold; color: #fff; text-align: right; }
+        
         .no-keys-text { color: #a0a0b0; font-size: 12px; text-align: center; font-style: italic; padding: 20px; background: rgba(15,15,23,0.5); border-radius: 10px; border: 1px dashed rgba(168, 85, 247, 0.3); }
         .site-footer { width: 100%; padding: 10px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid rgba(168, 85, 247, 0.2); background: rgba(5,5,5,0.8); backdrop-filter: blur(15px); position: fixed; bottom: 0; z-index: 100; }
         .site-footer span { color: #c084fc; font-weight: bold; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -91,24 +103,50 @@
 <body>
     <canvas id="particle-canvas"></canvas>
     <div class="navbar">
-        <h1 class="logo-text">CODEX VIP PANEL</h1>
+        <h1 class="logo-text">CODEX MAIN PANEL</h1>
         <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout <i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
+
     <div class="login-container" id="loginScreen">
         <div class="form-box">
             <div class="logo-overlay"><img src="https://i.ibb.co/84R90TKX/ec3c737f1e0c.png" alt="Codex Logo"></div>
-            <h1 class="hero-title">LOGIN <span>PANEL</span></h1>
+            <h1 class="hero-title">ADMIN <span>LOGIN</span></h1>
             <input type="password" id="adminPass" placeholder="Enter Admin Password">
-            <button class="sign-in-btn" onclick="login()">ENTER</button>
+            <button class="sign-in-btn" id="loginBtn" onclick="login()">ENTER</button>
+            <p id="loginError" style="color: #ef4444; font-size: 12px; margin-top: 15px; display: none; font-weight: bold;"></p>
         </div>
-        <p class="footer-text">Need access? Contact <span>GeoDevs69</span></p>
+        <p class="footer-text">Main Admin Access Only</p>
     </div>
+
+
     <div class="main-container" id="adminPanel" style="display: none;">
         <div class="hero-header">
             <img src="https://i.ibb.co/nsh3nG0T/ce8625bef5c3.png" alt="Codex Banner" class="banner-image">
             <h1 class="hero-title">CONTROL <span>PANEL</span></h1>
             <p class="hero-subtitle">Generate and manage your license keys</p>
         </div>
+
+    
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">TOTAL KEYS</span>
+                <span class="stat-value" id="stat-total">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">ACTIVE</span>
+                <span class="stat-value" style="color: #4ade80;" id="stat-active">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">PAUSED</span>
+                <span class="stat-value" style="color: #fbbf24;" id="stat-paused">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">EXPIRED</span>
+                <span class="stat-value" style="color: #ef4444;" id="stat-expired">0</span>
+            </div>
+        </div>
+
+        <!-- GENERATOR -->
         <div class="admin-form-box">
             <label class="label-text">TIME EXPIRY</label>
             <div class="expiry-row">
@@ -124,132 +162,160 @@
             </div>
             <button class="sign-in-btn" onclick="generateKey()">GENERATE KEY</button>
         </div>
-        <div class="tab-container">
-            <button class="tab-btn active" onclick="filterKeys('MAIN')">Generated Keys</button>
-            <button class="tab-btn" onclick="filterKeys('RESELLER')">Resellers Keys</button>
-        </div>
+
+        <!-- KEY LIST -->
         <div class="keys-header-row">
-            <div class="keys-section-title">ACTIVE LICENSES</div>
+            <div class="keys-section-title">GENERATED KEYS</div>
             <button class="view-all-btn" id="viewAllBtn" onclick="toggleViewAll()">View All <i class="fa-solid fa-chevron-down"></i></button>
         </div>
         <div class="keys-container" id="keysList"></div>
     </div>
-    <div class="site-footer">All Rights Reserved &copy; <span>@Admin GeoDevs69</span> - 2024</div>
-<script>
-    const ADMIN_PASS = "CodexSquad101"; 
-    let timerIntervals = {};
-    let allKeysData = {};
-    let currentFilter = 'MAIN';
-    let isAllExpanded = false;
 
-    function login() {
+    <div class="site-footer">All Rights Reserved &copy; <span>@Admin GeoDevs69</span> - 2024</div>
+
+<script>
+    let ADMIN_PASS = ""; 
+    let timerIntervals = {};
+    let isAllExpanded = false;
+    let currentKeysData = {};
+
+
+    async function login() {
         const pass = document.getElementById('adminPass').value;
-        if (pass === ADMIN_PASS) {
-            localStorage.setItem('mainPanelAuth', 'true');
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'flex';
-            document.getElementById('logoutBtn').style.display = 'flex';
-            loadKeys();
-        } else {
-            alert("Invalid Password!");
+        const errorEl = document.getElementById('loginError');
+        const btn = document.getElementById('loginBtn');
+        
+        if (!pass) { errorEl.textContent = "Please enter password."; errorEl.style.display = 'block'; return; }
+        
+        btn.textContent = "VERIFYING"; btn.disabled = true; errorEl.style.display = 'none';
+        
+        try {
+            
+            const res = await fetch(`/list?password=${pass}`);
+            if (res.ok) {
+                ADMIN_PASS = pass; 
+                localStorage.setItem('mainAdminPass', pass); 
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'flex';
+                document.getElementById('logoutBtn').style.display = 'flex';
+                loadKeys();
+            } else {
+                errorEl.textContent = "Invalid Admin Password!"; 
+                errorEl.style.display = 'block'; 
+                localStorage.removeItem('mainAdminPass');
+            }
+        } catch (err) { 
+            errorEl.textContent = "Server error."; 
+            errorEl.style.display = 'block'; 
+        } finally { 
+            btn.textContent = "ENTER"; 
+            btn.disabled = false; 
         }
     }
 
+    
     function logout() {
-        localStorage.removeItem('mainPanelAuth');
+        localStorage.removeItem('mainAdminPass'); ADMIN_PASS = "";
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('adminPanel').style.display = 'none';
         document.getElementById('logoutBtn').style.display = 'none';
         document.getElementById('adminPass').value = "";
+        document.getElementById('loginError').style.display = 'none';
         document.getElementById('keysList').innerHTML = "";
-        Object.values(timerIntervals).forEach(clearInterval);
-        timerIntervals = {};
+        currentKeysData = {};
+        Object.values(timerIntervals).forEach(clearInterval); timerIntervals = {};
+        updateStats();
     }
 
-    window.onload = function() {
-        const isLoggedIn = localStorage.getItem('mainPanelAuth');
-        if (isLoggedIn === 'true') {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'flex';
-            document.getElementById('logoutBtn').style.display = 'flex';
-            loadKeys();
-        }
+    window.onload = async function() {
+        const savedKey = localStorage.getItem('mainAdminPass');
+        if (savedKey) { document.getElementById('adminPass').value = savedKey; await login(); }
     };
+
+    
+    function updateStats() {
+        let total = 0, active = 0, paused = 0, expired = 0;
+        
+        Object.values(currentKeysData).forEach(keyData => {
+            total++;
+            let status = keyData.status || "UNKNOWN";
+            
+            
+            if (status === "ACTIVE" && keyData.expires && new Date() > new Date(keyData.expires)) {
+                status = "EXPIRED";
+            }
+
+            if (status === "ACTIVE") active++;
+            else if (status === "PAUSED") paused++;
+            else if (status === "EXPIRED") expired++;
+        });
+
+        document.getElementById('stat-total').innerText = total;
+        document.getElementById('stat-active').innerText = active;
+        document.getElementById('stat-paused').innerText = paused;
+        document.getElementById('stat-expired').innerText = expired;
+    }
 
     async function generateKey() {
         const duration = document.getElementById('duration').value;
         const unit = document.getElementById('unit').value;
         const res = await fetch(`/generate?password=${ADMIN_PASS}&duration=${duration}&unit=${unit}`);
         const data = await res.json();
+        
         if (data.status === "success") {
-            isAllExpanded = false;
-            document.getElementById('viewAllBtn').classList.remove('open');
+            isAllExpanded = false; 
+            document.getElementById('viewAllBtn').classList.remove('open'); 
             loadKeys();
-        } else {
-            alert(data.message);
+        } else { 
+            alert(data.message); 
         }
     }
 
-    function filterKeys(type) {
-        currentFilter = type;
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        if(type === 'MAIN') document.querySelectorAll('.tab-btn')[0].classList.add('active');
-        else document.querySelectorAll('.tab-btn')[1].classList.add('active');
-        isAllExpanded = false;
-        document.getElementById('viewAllBtn').classList.remove('open');
-        renderKeys();
+    function copyKey(key) { 
+        navigator.clipboard.writeText(key); 
     }
+
 
     async function loadKeys() {
-        try {
-            const res = await fetch(`/list?password=${ADMIN_PASS}`);
-            if (!res.ok) throw new Error("Server error");
-            const data = await res.json();
-            if (data.status === "error") return;
-            allKeysData = data;
-            renderKeys();
-        } catch (err) {
-            console.error("Load Error:", err);
-        }
-    }
-
-    function copyKey(key) { navigator.clipboard.writeText(key); }
-
-    function renderKeys() {
+        const res = await fetch(`/list?password=${ADMIN_PASS}`);
+        if (!res.ok) { logout(); return; }
+        
+        const data = await res.json();
+        currentKeysData = data; 
+        
         const container = document.getElementById('keysList');
         container.innerHTML = "";
-        if (!allKeysData || typeof allKeysData !== 'object' || allKeysData === null) {
-            container.innerHTML = `<div class='no-keys-text'>Failed to load keys.</div>`;
-            return;
+        
+        if (Object.keys(data).length === 0) { 
+            container.innerHTML = "<div class='no-keys-text'>No keys generated yet.</div>"; 
+            updateStats(); 
+            return; 
         }
-        const filteredKeys = Object.keys(allKeysData).filter(k => {
-            const kd = allKeysData[k];
-            return kd && typeof kd === 'object' && (kd.source || "MAIN") === currentFilter;
-        });
-        if (filteredKeys.length === 0) {
-            container.innerHTML = `<div class='no-keys-text'>No ${currentFilter} keys generated yet.</div>`;
-            return;
-        }
-        Object.values(timerIntervals).forEach(clearInterval);
-        timerIntervals = {};
-        filteredKeys.sort((a, b) => allKeysData[a].createdAt - allKeysData[b].createdAt);
+
+        Object.values(timerIntervals).forEach(clearInterval); timerIntervals = {};
+        
+        
+        const sortedKeys = Object.keys(data).sort((a, b) => data[b].createdAt - data[a].createdAt);
+        
         let indexCounter = 1;
-        filteredKeys.forEach((k, index) => {
-            const keyData = allKeysData[k];
+        sortedKeys.forEach((k, index) => {
+            const keyData = data[k];
             const card = document.createElement('div');
             card.className = 'key-card';
             if (!isAllExpanded && index > 0) card.style.display = 'none';
+            
             let pauseIcon = "▶️", pauseClass = "btn-resume";
             if (keyData.status === "ACTIVE") { pauseIcon = "⏸️"; pauseClass = "btn-pause"; }
+            
             let currentStatus = keyData.status || "UNKNOWN";
             if (currentStatus === "ACTIVE" && keyData.expires && new Date() > new Date(keyData.expires)) currentStatus = "EXPIRED"; 
+
             const currentHwid = keyData.hwid || "WALA_PA";
-            const duration = keyData.duration || 0;
-            const unit = keyData.unit || "N/A";
+            
             card.innerHTML = `
                 <div class="card-header">
                     <div class="card-left" onclick="toggleDetails('${k}')">
-                        <span class="key-index">Key #${indexCounter}</span>
+                        <span class="key-index">Key #${indexCounter} (${keyData.source})</span>
                         <div class="key-name-wrapper">
                             <span class="key-name">${k}</span>
                             <button class="btn-copy" onclick="event.stopPropagation(); copyKey('${k}')" title="Copy Key"><i class="fa-regular fa-copy"></i></button>
@@ -257,24 +323,27 @@
                     </div>
                     <div class="card-right">
                         <span class="status-badge status-${currentStatus}">${currentStatus}</span>
-                        <button class="btn-icon ${pauseClass}" onclick="togglePause('${k}')">${pauseIcon}</button>
-                        <button class="btn-icon btn-delete" onclick="deleteKey('${k}')">🗑️</button>
+                        <button class="btn-icon ${pauseClass}" onclick="event.stopPropagation(); togglePause('${k}')">${pauseIcon}</button>
+                        <button class="btn-icon btn-delete" onclick="event.stopPropagation(); deleteKey('${k}')">🗑️</button>
                         <div class="arrow-box" id="arrow-${k}" onclick="toggleDetails('${k}')">▼</div>
                     </div>
                 </div>
                 <div class="card-body" id="body-${k}">
-                    <div class="detail-row"><span>Time Valid:</span> <span>${duration} ${unit}</span></div>
+                    <div class="detail-row"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
                     <div class="detail-row"><span>HWID / IP:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentHwid}</span></div>
+                    <div class="detail-row"><span>Reseller IP:</span> <span>${keyData.resellerIp || 'N/A'}</span></div>
                     <div class="detail-row"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
                     <div class="detail-row" style="color:#4ade80; font-size:13px; margin-top:8px; border: none;"><span>Time Left:</span> <span id="time-${k}">Calculating...</span></div>
                 </div>
             `;
-            container.appendChild(card);
-            indexCounter++;
+            container.appendChild(card); indexCounter++;
         });
-        filteredKeys.forEach(k => startTimer(k, allKeysData[k]));
+        
+        updateStats(); 
+        sortedKeys.forEach(k => startTimer(k, data[k]));
     }
 
+    
     function toggleViewAll() {
         isAllExpanded = !isAllExpanded;
         const btn = document.getElementById('viewAllBtn');
@@ -297,46 +366,61 @@
         }
     }
 
+
     function toggleDetails(key) {
         const body = document.getElementById(`body-${key}`);
         const arrow = document.getElementById(`arrow-${key}`);
         const isCurrentlyActive = body.classList.contains('active');
         document.querySelectorAll('.card-body').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.arrow-box').forEach(a => a.classList.remove('down'));
-        if (!isCurrentlyActive) {
-            body.classList.add('active');
-            arrow.classList.add('down');
-        }
+        if (!isCurrentlyActive) { body.classList.add('active'); arrow.classList.add('down'); }
     }
+
 
     async function togglePause(key) {
         await fetch(`/toggle-pause?password=${ADMIN_PASS}&key=${key}`);
         loadKeys(); 
     }
 
+    
     async function deleteKey(key) {
+        if(!confirm("Sigurado ka bang gusto mong i-delete ang key na ito?")) return;
         await fetch(`/delete?password=${ADMIN_PASS}&key=${key}`);
         loadKeys(); 
     }
 
+    
     function startTimer(key, keyData) {
         const timeEl = document.getElementById(`time-${key}`);
         if (!timeEl) return;
+
+        const checkAndUpdateStats = () => {
+            if (timeEl.innerText === "EXPIRED" && currentKeysData[key] && currentKeysData[key].status === "ACTIVE") {
+                currentKeysData[key].status = "EXPIRED";
+                updateStats();
+            }
+        };
+
         if (keyData.status === "UNUSED") { timeEl.innerText = "Waiting for first use"; timeEl.style.color = "#fbbf24"; return; }
         if (keyData.status === "PAUSED") { timeEl.innerText = "ON HOLD (Paused)"; timeEl.style.color = "#f59e0b"; return; }
+        
         let timeLeftMs = new Date(keyData.expires) - new Date();
         if (isNaN(timeLeftMs)) { timeEl.innerText = "N/A"; return; }
+        
         if (timeLeftMs <= 0) {
             timeEl.innerText = "EXPIRED"; timeEl.style.color = "#ef4444";
             const badge = timeEl.closest('.key-card').querySelector('.status-badge');
             if(badge) { badge.className = 'status-badge status-EXPIRED'; badge.innerText = 'EXPIRED'; }
+            checkAndUpdateStats(); 
             return;
         }
+
         timerIntervals[key] = setInterval(() => {
             if (timeLeftMs <= 0) {
                 timeEl.innerText = "EXPIRED"; timeEl.style.color = "#ef4444"; clearInterval(timerIntervals[key]);
                 const badge = timeEl.closest('.key-card').querySelector('.status-badge');
                 if(badge) { badge.className = 'status-badge status-EXPIRED'; badge.innerText = 'EXPIRED'; }
+                checkAndUpdateStats(); 
                 return;
             }
             let totalSec = Math.floor(timeLeftMs / 1000);
@@ -349,7 +433,6 @@
             timeLeftMs -= 1000;
         }, 1000);
     }
-
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
