@@ -40,7 +40,7 @@ function generateRandomString(length) {
     return result;
 }
 
-// Generate (Para sa Main Admin)
+// 🔥 1. Generate (Para sa Main Admin)
 app.get('/generate', async (req, res) => {
     const { password, duration, unit } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
@@ -56,7 +56,7 @@ app.get('/generate', async (req, res) => {
     }
 });
 
-// Generate (Para sa Reseller Panel)
+// 🔥 2. Generate (Para sa Reseller Panel)
 app.post('/api/reseller-generate', async (req, res) => {
     const { resellerKey, duration, unit } = req.body;
 
@@ -67,7 +67,7 @@ app.post('/api/reseller-generate', async (req, res) => {
         if (!resellerData || resellerData.source !== "MAIN") {
             return res.status(401).json({ status: "error", message: "Invalid Reseller Key" });
         }
-        if (resellerData.status === "PAUSED" || resellerData.status === "EXPIRED") {
+        if (resellerData.status === "PAUSED") {
             return res.status(403).json({ status: "error", message: "Reseller Access Revoked" });
         }
         if (resellerData.status === "ACTIVE" && new Date() > resellerData.expires) {
@@ -85,7 +85,7 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
-// Verify (Para sa GG Script / App Source / APK)
+// 🔥 3. Verify (Para sa GG Script / App Source / APK)
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -96,6 +96,7 @@ app.post('/verify', async (req, res) => {
 
         if (keyData.status === "PAUSED") return res.status(403).json({ status: "paused", message: "Key Successfully Hold!" });
 
+        // 🔥 KAPAG UNUSED, I-ACTIVATE
         if (keyData.status === "UNUSED") {
             let expires = new Date();
             if (keyData.unit === 'seconds') expires.setSeconds(expires.getSeconds() + keyData.duration);
@@ -113,9 +114,10 @@ app.post('/verify', async (req, res) => {
             return res.json({ status: "success", message: "Key activated!" });
         }
 
+        // 🔥 KAPAG ACTIVE, I-CHECK KUNG TAMA ANG HWID
         if (keyData.status === "ACTIVE") {
-            // 🔥 KUNG ANG NAKA-SAVE AY IP (Galing sa Second Panel), PALITAN NG TOTOONG HWID
-            if (keyData.hwid && keyData.hwid.includes(".")) {
+            // Kung ang naka-save ay IP address (galing sa Reseller Login), i-update sa totoong HWID ng device
+            if (keyData.hwid && keyData.hwid.includes(".") && keyData.hwid !== hwid) {
                 keyData.hwid = hwid; 
                 await keyData.save();
                 return res.json({ status: "success", message: "Key activated!" });
@@ -131,12 +133,13 @@ app.post('/verify', async (req, res) => {
     }
 });
 
-// Verify Reseller (Para sa Second Panel Login)
+// 🔥 4. Verify Reseller (Para sa Second Panel Login - Dito nangyayari ang activation)
 app.post('/verify-reseller', async (req, res) => {
     const { key } = req.body;
     if (!key) return res.status(400).json({ status: "error", message: "Missing Key" });
 
     try {
+        // Kunin ang Public IP Address ng Reseller
         const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || "Unknown IP";
         const ipOnly = clientIp.split(',')[0].trim();
 
@@ -146,19 +149,28 @@ app.post('/verify-reseller', async (req, res) => {
         if (keyData.source !== "MAIN") return res.status(403).json({ status: "error", message: "Not a Main Key" });
 
         if (keyData.status === "PAUSED") return res.status(403).json({ status: "paused", message: "Key is paused" });
-        
-        if (keyData.status === "ACTIVE") {
-            if (keyData.hwid && keyData.hwid !== ipOnly && keyData.hwid !== "WALA_PA" && keyData.hwid.includes(".")) {
-                 return res.status(403).json({ status: "error", message: "Key already locked to another device" });
-            }
-            return res.json({ status: "success", message: "Valid Reseller Key" });
-        }
 
+        // 🔥 KAPAG UNUSED, GAWING ACTIVE AT I-SAVE ANG IP PARA MAG-COUNTDOWN
         if (keyData.status === "UNUSED") {
-            keyData.status = "ACTIVE"; 
-            keyData.hwid = ipOnly; 
+            let expires = new Date();
+            if (keyData.unit === 'seconds') expires.setSeconds(expires.getSeconds() + keyData.duration);
+            else if (keyData.unit === 'minutes') expires.setMinutes(expires.getMinutes() + keyData.duration);
+            else if (keyData.unit === 'hours') expires.setHours(expires.getHours() + keyData.duration);
+            else if (keyData.unit === 'days') expires.setDate(expires.getDate() + keyData.duration);
+            else if (keyData.unit === 'months') expires.setMonth(expires.getMonth() + keyData.duration);
+            else if (keyData.unit === 'years') expires.setFullYear(expires.getFullYear() + keyData.duration);
+
+            keyData.expires = expires;
+            keyData.hwid = ipOnly; // I-save ang IP sa HWID field
+            keyData.status = "ACTIVE";
             keyData.resellerId = "Reseller"; 
             await keyData.save();
+        } 
+        // Kapag ACTIVE na, check kung expired na
+        else if (keyData.status === "ACTIVE") {
+            if (new Date() > keyData.expires) {
+                return res.status(403).json({ status: "expired", message: "Reseller Key Expired" });
+            }
         }
 
         return res.json({ status: "success", message: "Valid Reseller Key" });
@@ -168,7 +180,7 @@ app.post('/verify-reseller', async (req, res) => {
     }
 });
 
-// List (Ibabalik lahat, may source)
+// 🔥 5. List (Ibabalik lahat, may source at IP)
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
     try {
@@ -187,7 +199,7 @@ app.get('/list', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// Toggle Pause
+// 🔥 6. Toggle Pause
 app.get('/toggle-pause', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
@@ -216,7 +228,7 @@ app.get('/toggle-pause', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// Delete
+// 🔥 7. Delete
 app.get('/delete', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
