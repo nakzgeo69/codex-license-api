@@ -45,6 +45,25 @@
             text-shadow: 0 0 20px rgba(168, 85, 247, 1); 
             text-align: center;
         }
+        
+        .logout-btn { 
+            background: rgba(168, 85, 247, 0.15); 
+            border: 1px solid #a855f7; 
+            color: #c084fc; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            display: none; 
+            align-items: center; 
+            gap: 6px; 
+            font-family: 'Inter', sans-serif; 
+            font-weight: 600; 
+            position: absolute;
+            right: 20px;
+        }
+        .logout-btn:hover { background: rgba(168, 85, 247, 0.4); color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
 
         .login-container { 
             position: relative; 
@@ -208,6 +227,9 @@
 
     <div class="navbar">
         <h1 class="logo-text">CODEX VIP PANEL</h1>
+        <button class="logout-btn" id="logoutBtn" onclick="logout()">
+            Logout <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
     </div>
 
     <div class="login-container" id="loginScreen">
@@ -272,13 +294,40 @@
     function login() {
         const pass = document.getElementById('adminPass').value;
         if (pass === ADMIN_PASS) {
+            localStorage.setItem('mainPanelAuth', 'true');
+            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'flex';
+            document.getElementById('logoutBtn').style.display = 'flex';
             loadKeys();
         } else {
             alert("Invalid Password!");
         }
     }
+
+    function logout() {
+        localStorage.removeItem('mainPanelAuth');
+        
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'none';
+        document.getElementById('adminPass').value = "";
+        
+        document.getElementById('keysList').innerHTML = "";
+        
+        Object.values(timerIntervals).forEach(clearInterval);
+        timerIntervals = {};
+    }
+
+    window.onload = function() {
+        const isLoggedIn = localStorage.getItem('mainPanelAuth');
+        if (isLoggedIn === 'true') {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'flex';
+            document.getElementById('logoutBtn').style.display = 'flex';
+            loadKeys();
+        }
+    };
 
     async function generateKey() {
         const duration = document.getElementById('duration').value;
@@ -288,6 +337,8 @@
         const data = await res.json();
         
         if (data.status === "success") {
+            isAllExpanded = false;
+            document.getElementById('viewAllBtn').classList.remove('open');
             loadKeys();
         } else {
             alert(data.message);
