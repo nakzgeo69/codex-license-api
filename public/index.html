@@ -9,7 +9,6 @@
         * { box-sizing: border-box; }
         
         body {
-            /* Dark purple tint background */
             background-color: #030005; 
             background-image: radial-gradient(circle at 50% 0%, #2e0a4f 0%, #030005 60%);
             color: #fff; 
@@ -65,9 +64,9 @@
         
         /* LOGO BOX STYLE */
         .hero-icon, .lock-icon-box {
-            width: 100px; /* Pinalaki ng konti */
+            width: 100px;
             height: 100px;
-            background: transparent; /* Transparent na para lumabas ang image */
+            background: transparent;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -78,7 +77,6 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            /* Glow effect sa mismong image */
             filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.8)); 
         }
         
@@ -339,7 +337,6 @@
             <p class="hero-subtitle">Generate and manage your license keys</p>
         </div>
 
-        <!-- GENERATE BOX -->
         <div class="admin-form-box">
             <label class="label-text">Time Expiry</label>
             <div class="expiry-row">
@@ -357,7 +354,6 @@
         </div>
 
         <div class="keys-section-title">Active Licenses</div>
-
         <div class="keys-container" id="keysList"></div>
     </div>
 
@@ -366,17 +362,29 @@
     </div>
 
 <script>
-    const ADMIN_PASS = "CodexSquad101"; 
+    // WALANG PASSWORD DITO! Nasa server na.
+    let currentPassword = "";
     let timerIntervals = {};
 
-    function login() {
+    async function login() {
         const pass = document.getElementById('adminPass').value;
-        if (pass === ADMIN_PASS) {
+        
+        // Magpapadala sa server para icheck
+        const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pass })
+        });
+        
+        const data = await res.json();
+        
+        if (data.status === "success") {
+            currentPassword = pass; // Itago sa memory para sa API calls
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'flex';
             loadKeys();
         } else {
-            alert("Invalid Password!");
+            alert("❌ Invalid Password!");
         }
     }
 
@@ -384,7 +392,7 @@
         const duration = document.getElementById('duration').value;
         const unit = document.getElementById('unit').value;
         
-        const res = await fetch(`/generate?password=${ADMIN_PASS}&duration=${duration}&unit=${unit}`);
+        const res = await fetch(`/generate?password=${currentPassword}&duration=${duration}&unit=${unit}`);
         const data = await res.json();
         
         if (data.status === "success") {
@@ -395,12 +403,12 @@
     }
 
     async function loadKeys() {
-        const res = await fetch(`/list?password=${ADMIN_PASS}`);
+        const res = await fetch(`/list?password=${currentPassword}`);
         const data = await res.json();
         const container = document.getElementById('keysList');
         container.innerHTML = "";
 
-        if (Object.keys(data).length === 0) {
+        if (Object.keys(data).length === 0 || data.status === "error") {
             container.innerHTML = "<div class='no-keys-text'>No keys generated yet. Click Generate to start.</div>";
             return;
         }
@@ -456,7 +464,7 @@
     }
 
     async function togglePause(key) {
-        const res = await fetch(`/toggle-pause?password=${ADMIN_PASS}&key=${key}`);
+        const res = await fetch(`/toggle-pause?password=${currentPassword}&key=${key}`);
         const data = await res.json();
         alert(data.message);
         loadKeys(); 
@@ -464,7 +472,7 @@
 
     async function deleteKey(key) {
         if (!confirm("Are you sure you want to delete this key?")) return;
-        const res = await fetch(`/delete?password=${ADMIN_PASS}&key=${key}`);
+        const res = await fetch(`/delete?password=${currentPassword}&key=${key}`);
         const data = await res.json();
         alert(data.message);
         loadKeys(); 
