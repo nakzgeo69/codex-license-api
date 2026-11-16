@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX ADMIN PANEL</title>
+    <title>CODEX VIP PANEL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap');
         * { box-sizing: border-box; }
@@ -71,14 +71,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="navbar"><h1 class="logo-text">CODEX MLBB</h1></div>
+    <div class="navbar"><h1 class="logo-text">CODEX VIP PANEL</h1></div>
 
     <div class="login-container" id="loginScreen">
         <div class="lock-icon-box"><img src="https://i.ibb.co/84R90TKX/ec3c737f1e0c.png" alt="Codex Logo"></div>
         <h1 class="hero-title" style="font-size: 22px; margin-bottom: 20px;">ADMIN <span>LOGIN</span></h1>
         <div class="form-box">
             <input type="password" id="adminPass" placeholder="Enter Admin Password">
-            <button class="sign-in-btn" onclick="login()">SIGN IN</button>
+            <button class="sign-in-btn" onclick="login()">ENTER</button>
         </div>
         <p class="footer-text">Need access? Contact <span>GeoDevs69</span></p>
     </div>
@@ -86,7 +86,7 @@
     <div class="main-container" id="adminPanel" style="display: none;">
         <div class="hero-header">
             <div class="hero-icon"><img src="https://i.ibb.co/84R90TKX/ec3c737f1e0c.png" alt="Codex Logo"></div>
-            <h1 class="hero-title">ADMIN <span>PANEL</span></h1>
+            <h1 class="hero-title">CONTROL <span>PANEL</span></h1>
             <p class="hero-subtitle">Generate and manage your license keys</p>
         </div>
 
@@ -109,14 +109,14 @@
         <div class="keys-section-title">Active Licenses</div>
 
         <div class="tab-container">
-            <button class="tab-btn active" onclick="filterKeys('MAIN')">My Keys</button>
-            <button class="tab-btn" onclick="filterKeys('RESELLER')">Reseller Keys</button>
+            <button class="tab-btn active" onclick="filterKeys('MAIN')">Generated Keys</button>
+            <button class="tab-btn" onclick="filterKeys('RESELLER')">Resellers Keys</button>
         </div>
 
         <div class="keys-container" id="keysList"></div>
     </div>
 
-    <div class="site-footer">All Rights Reserved &copy; <span>Admin GeoDevs69</span> - 2024</div>
+    <div class="site-footer">All Rights Reserved &copy; <span>©Admin GeoDevs69</span> - 2024</div>
 
 <script>
     const ADMIN_PASS = "CodexSquad101"; 
