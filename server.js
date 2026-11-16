@@ -1,10 +1,13 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const cors = require('cors'); // 🔥 BAGO: Kailangan para sa Second Panel
 const app = express();
 
+app.use(cors()); // 🔥 BAGO: Payagan ang cross-origin requests
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
 const ADMIN_PASSWORD = "CodexSquad101"; 
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://geodevz69:GeoDevs69@cluster0.leanvjg.mongodb.net/licenseDB?retryWrites=true&w=majority";
 
@@ -95,6 +98,34 @@ app.post('/verify', async (req, res) => {
             
             return res.json({ status: "success", message: "Valid" });
         }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: "error", message: "Server Error" });
+    }
+});
+
+// 🔥 BAGO: ENDPOINT PARA SA SECOND PANEL (RESELLER LOGIN)
+// Ito ang tinatawagan ng Second Panel para i-verify kung valid ang reseller key.
+// Hindi ito nag-a-activate ng key, check lang kung pwede gamitin.
+app.post('/verify-reseller', async (req, res) => {
+    const { key } = req.body;
+    if (!key) return res.status(400).json({ status: "error", message: "Missing Key" });
+
+    try {
+        const keyData = await LicenseKey.findOne({ key: key });
+        if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
+
+        if (keyData.status === "PAUSED") {
+            return res.status(403).json({ status: "paused", message: "Key is paused" });
+        }
+        
+        if (keyData.status === "ACTIVE") {
+            const now = new Date();
+            if (now > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
+        }
+
+        // Kapag valid at hindi expired, payagan ang access
+        return res.json({ status: "success", message: "Valid Reseller Key" });
     } catch (err) {
         console.error(err);
         res.status(500).json({ status: "error", message: "Server Error" });
