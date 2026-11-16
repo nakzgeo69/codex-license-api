@@ -2,34 +2,29 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit'); // BAGO: Para sa security
-
+const rateLimit = require('express-rate-limit');
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// SECURITY: Rate Limiting (iwas brute-force at spam requests)
+// Security: Rate Limiting
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 200, // Limit each IP to 200 requests per windowMs
+    windowMs: 15 * 60 * 1000,
+    max: 200,
     message: { status: "error", message: "Too many requests, please try again later." }
 });
-app.use('/api/', limiter);
 app.use('/verify', limiter);
 app.use('/verify-reseller', limiter);
+app.use('/api/', limiter);
 
-// Iyong mismong password at URI (Hardcoded)
 const ADMIN_PASSWORD = "CodexSquad101"; 
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://geodevz69:GeoDevs69@cluster0.leanvjg.mongodb.net/licenseDB?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ Connected to MongoDB Atlas!'))
-  .catch(err => {
-      console.error('❌ MongoDB connection error:', err);
-      // Hindi natin i-e-exit para mag-retry ang Render
-  });
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
 const keySchema = new mongoose.Schema({
     key: { type: String, unique: true, required: true },
@@ -41,7 +36,6 @@ const keySchema = new mongoose.Schema({
     pausedTimeLeft: { type: Number, default: null },
     createdAt: { type: Date, default: Date.now },
     source: { type: String, default: "MAIN" },
-    resellerIp: { type: String, default: null },
     resellerId: { type: String, default: null } 
 });
 
@@ -56,7 +50,6 @@ function generateRandomString(length) {
     return result;
 }
 
-// Helper function para sa expiration calculation
 function calculateExpiry(unit, duration) {
     let expires = new Date();
     if (unit === 'seconds') expires.setSeconds(expires.getSeconds() + duration);
@@ -68,7 +61,7 @@ function calculateExpiry(unit, duration) {
     return expires;
 }
 
-// 1. ADMIN GENERATE
+// 1. MAIN GENERATE
 app.get('/generate', async (req, res) => {
     const { password, duration, unit } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
@@ -92,7 +85,6 @@ app.post('/api/reseller-generate', async (req, res) => {
 
     try {
         const resellerData = await LicenseKey.findOne({ key: resellerKey });
-        
         if (!resellerData || resellerData.source !== "MAIN") return res.status(401).json({ status: "error", message: "Invalid Key Found" });
         if (resellerData.status === "PAUSED") return res.status(403).json({ status: "error", message: "Reseller Access Revoked" });
         if (resellerData.status === "UNUSED") return res.status(403).json({ status: "error", message: "Please activate your reseller key first" });
@@ -104,12 +96,11 @@ app.post('/api/reseller-generate', async (req, res) => {
 
         res.json({ status: "success", key: key });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error", message: "Server Error" });
     }
 });
 
-// 3. CLIENT VERIFY (Para sa software/game na gumagamit ng key)
+// 3. CLIENT VERIFY (GG Script)
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -117,6 +108,7 @@ app.post('/verify', async (req, res) => {
     try {
         const keyData = await LicenseKey.findOne({ key: key });
         if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
+
         if (keyData.status === "PAUSED") return res.status(403).json({ status: "paused", message: "Key Successfully Hold!" });
 
         if (keyData.status === "UNUSED") {
@@ -128,14 +120,12 @@ app.post('/verify', async (req, res) => {
         }
 
         if (keyData.status === "ACTIVE") {
-            if (keyData.hwid && keyData.hwid.includes(".") && keyData.hwid !== hwid) {
-                keyData.hwid = hwid; 
-                await keyData.save();
-                return res.json({ status: "success", message: "Key activated!" });
+            if (keyData.hwid !== hwid) {
+                return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
             }
-            if (keyData.hwid !== hwid) return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
-            if (new Date() > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
-            
+            if (new Date() > keyData.expires) {
+                return res.status(403).json({ status: "expired", message: "Key expired" });
+            }
             return res.json({ status: "success", message: "Valid" });
         }
     } catch (err) {
@@ -143,15 +133,12 @@ app.post('/verify', async (req, res) => {
     }
 });
 
-// 4. RESELLER LOGIN VERIFY (Para sa panel mo)
+// 4. RESELLER VERIFY
 app.post('/verify-reseller', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Key or Device ID" });
 
     try {
-        const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || "Unknown IP";
-        const ipOnly = clientIp.split(',')[0].trim();
-
         const keyData = await LicenseKey.findOne({ key: key });
         if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
         if (keyData.source !== "MAIN") return res.status(403).json({ status: "error", message: "Not a Main Key" });
@@ -160,39 +147,37 @@ app.post('/verify-reseller', async (req, res) => {
         if (keyData.status === "UNUSED") {
             keyData.expires = calculateExpiry(keyData.unit, keyData.duration);
             keyData.hwid = hwid;
-            keyData.resellerIp = ipOnly;
             keyData.status = "ACTIVE";
             keyData.resellerId = "Reseller"; 
             await keyData.save();
         } 
         else if (keyData.status === "ACTIVE") {
-            if (new Date() > keyData.expires) return res.status(403).json({ status: "expired", message: "Your Key Expired" });
-            // AUTO-UPDATE HWID: Para hindi ma-lockout ang reseller kapag nag-clear cache
             if (keyData.hwid !== hwid) {
-                keyData.hwid = hwid;
-                await keyData.save();
+                return res.status(403).json({ status: "error", message: "Key locked to another device/browser." });
+            }
+            if (new Date() > keyData.expires) {
+                return res.status(403).json({ status: "expired", message: "Your Key Expired" });
             }
         }
 
         return res.json({ status: "success", message: "Valid Key Found" });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error", message: "Server Error" });
     }
 });
 
-// 5. LIST ALL KEYS (Para sa panel)
+// 5. LIST KEYS
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
     try {
-        const keys = await LicenseKey.find().select('key hwid status duration unit expires pausedTimeLeft createdAt source resellerIp resellerId').lean();
+        const keys = await LicenseKey.find().select('key hwid status duration unit expires pausedTimeLeft createdAt source resellerId').lean();
         const formattedData = {};
         keys.forEach(k => {
             formattedData[k.key] = {
                 hwid: k.hwid, status: k.status, duration: k.duration, unit: k.unit,
                 expires: k.expires, pausedTimeLeft: k.pausedTimeLeft, createdAt: k.createdAt.getTime(),
                 source: k.source || "MAIN",
-                resellerIp: k.resellerIp, 
+                resellerIp: null, 
                 resellerId: k.resellerId 
             };
         });
@@ -200,7 +185,7 @@ app.get('/list', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// 6. TOGGLE PAUSE / RESUME
+// 6. TOGGLE PAUSE
 app.get('/toggle-pause', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
