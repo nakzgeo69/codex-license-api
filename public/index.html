@@ -34,7 +34,7 @@
         .hero-title span { color: #c084fc; text-shadow: 0 0 20px rgba(168, 85, 247, 1); }
         .hero-subtitle { font-size: 12px; color: #a0a0b0; margin: 0; letter-spacing: 1px; }
         
-    
+        /* STATS DASHBOARD CSS */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; flex-shrink: 0; }
         .stat-card { background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .stat-label { font-size: 9px; color: #a0a0b0; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px; }
@@ -49,6 +49,11 @@
         .sign-in-btn { background: linear-gradient(135deg, #a855f7, #d946ef); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-family: 'Orbitron', sans-serif; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 0 20px rgba(217, 70, 239, 0.4); transition: 0.3s; letter-spacing: 1px; }
         .sign-in-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(217, 70, 239, 0.7); }
         
+        /* TABS CSS */
+        .tabs-container { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; }
+        .tab-btn { flex: 1; background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.3); color: #a0a0b0; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; transition: 0.3s; }
+        .tab-btn.active { background: linear-gradient(135deg, #a855f7, #d946ef); color: white; border-color: #d946ef; box-shadow: 0 0 15px rgba(217, 70, 239, 0.4); }
+
         .keys-header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px; flex-shrink: 0; }
         .keys-section-title { font-size: 11px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 2px; text-align: left; font-weight: bold; margin: 0; }
         .view-all-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-weight: 600; }
@@ -118,7 +123,6 @@
         <p class="footer-text">Main Admin Access Only</p>
     </div>
 
-
     <div class="main-container" id="adminPanel" style="display: none;">
         <div class="hero-header">
             <img src="https://i.ibb.co/nsh3nG0T/ce8625bef5c3.png" alt="Codex Banner" class="banner-image">
@@ -126,7 +130,7 @@
             <p class="hero-subtitle">Generate and manage your license keys</p>
         </div>
 
-    
+        <!-- STATS DASHBOARD -->
         <div class="stats-grid">
             <div class="stat-card">
                 <span class="stat-label">TOTAL KEYS</span>
@@ -146,7 +150,6 @@
             </div>
         </div>
 
-        <!-- GENERATOR -->
         <div class="admin-form-box">
             <label class="label-text">TIME EXPIRY</label>
             <div class="expiry-row">
@@ -163,9 +166,14 @@
             <button class="sign-in-btn" onclick="generateKey()">GENERATE KEY</button>
         </div>
 
-        <!-- KEY LIST -->
+        <!-- TABS -->
+        <div class="tabs-container">
+            <button class="tab-btn active" id="tab-main" onclick="switchTab('main')">Generated Keys</button>
+            <button class="tab-btn" id="tab-reseller" onclick="switchTab('reseller')">Resellers Keys</button>
+        </div>
+
         <div class="keys-header-row">
-            <div class="keys-section-title">GENERATED KEYS</div>
+            <div class="keys-section-title" id="section-title">MAIN KEYS</div>
             <button class="view-all-btn" id="viewAllBtn" onclick="toggleViewAll()">View All <i class="fa-solid fa-chevron-down"></i></button>
         </div>
         <div class="keys-container" id="keysList"></div>
@@ -178,7 +186,7 @@
     let timerIntervals = {};
     let isAllExpanded = false;
     let currentKeysData = {};
-
+    let activeTab = "main"; // Default tab
 
     async function login() {
         const pass = document.getElementById('adminPass').value;
@@ -187,22 +195,27 @@
         
         if (!pass) { errorEl.textContent = "Please enter password."; errorEl.style.display = 'block'; return; }
         
-        btn.textContent = "VERIFYING"; btn.disabled = true; errorEl.style.display = 'none';
+        btn.textContent = "VERIFYING..."; btn.disabled = true; errorEl.style.display = 'none';
         
         try {
-            
             const res = await fetch(`/list?password=${pass}`);
+            const data = await res.json();
+
+            // FIX: I-check kung error response (para hindi maging "status" at "message" ang keys)
+            if (data.status === "error") {
+                errorEl.textContent = data.message || "Invalid Admin Password!"; 
+                errorEl.style.display = 'block'; 
+                localStorage.removeItem('mainAdminPass');
+                return;
+            }
+
             if (res.ok) {
                 ADMIN_PASS = pass; 
                 localStorage.setItem('mainAdminPass', pass); 
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'flex';
                 document.getElementById('logoutBtn').style.display = 'flex';
-                loadKeys();
-            } else {
-                errorEl.textContent = "Invalid Admin Password!"; 
-                errorEl.style.display = 'block'; 
-                localStorage.removeItem('mainAdminPass');
+                loadKeys(data); // I-pass na agad ang data para hindi na mag-fetch ulit
             }
         } catch (err) { 
             errorEl.textContent = "Server error."; 
@@ -213,7 +226,6 @@
         }
     }
 
-    
     function logout() {
         localStorage.removeItem('mainAdminPass'); ADMIN_PASS = "";
         document.getElementById('loginScreen').style.display = 'flex';
@@ -232,19 +244,13 @@
         if (savedKey) { document.getElementById('adminPass').value = savedKey; await login(); }
     };
 
-    
     function updateStats() {
         let total = 0, active = 0, paused = 0, expired = 0;
         
         Object.values(currentKeysData).forEach(keyData => {
             total++;
             let status = keyData.status || "UNKNOWN";
-            
-            
-            if (status === "ACTIVE" && keyData.expires && new Date() > new Date(keyData.expires)) {
-                status = "EXPIRED";
-            }
-
+            if (status === "ACTIVE" && keyData.expires && new Date() > new Date(keyData.expires)) { status = "EXPIRED"; }
             if (status === "ACTIVE") active++;
             else if (status === "PAUSED") paused++;
             else if (status === "EXPIRED") expired++;
@@ -265,41 +271,61 @@
         if (data.status === "success") {
             isAllExpanded = false; 
             document.getElementById('viewAllBtn').classList.remove('open'); 
-            loadKeys();
-        } else { 
-            alert(data.message); 
+            loadKeys(); // Mag-fetch ulit
+        } else { alert(data.message); }
+    }
+
+    function copyKey(key) { navigator.clipboard.writeText(key); }
+
+    function switchTab(tab) {
+        activeTab = tab;
+        document.getElementById('tab-main').classList.remove('active');
+        document.getElementById('tab-reseller').classList.remove('active');
+        
+        if (tab === 'main') {
+            document.getElementById('tab-main').classList.add('active');
+            document.getElementById('section-title').innerText = "MAIN KEYS";
+        } else {
+            document.getElementById('tab-reseller').classList.add('active');
+            document.getElementById('section-title').innerText = "RESELLER KEYS";
         }
+        renderKeys();
     }
 
-    function copyKey(key) { 
-        navigator.clipboard.writeText(key); 
-    }
-
-
-    async function loadKeys() {
-        const res = await fetch(`/list?password=${ADMIN_PASS}`);
-        if (!res.ok) { logout(); return; }
+    async function loadKeys(passedData = null) {
+        let data = passedData;
+        if (!data) {
+            const res = await fetch(`/list?password=${ADMIN_PASS}`);
+            if (!res.ok) { logout(); return; }
+            data = await res.json();
+            if (data.status === "error") { alert("Session expired. Please login again."); logout(); return; }
+        }
         
-        const data = await res.json();
         currentKeysData = data; 
-        
+        renderKeys(); 
+    }
+
+    function renderKeys() {
         const container = document.getElementById('keysList');
         container.innerHTML = "";
-        
-        if (Object.keys(data).length === 0) { 
-            container.innerHTML = "<div class='no-keys-text'>No keys generated yet.</div>"; 
+        Object.values(timerIntervals).forEach(clearInterval); timerIntervals = {};
+
+        const filteredKeys = Object.keys(currentKeysData).filter(k => {
+            const source = currentKeysData[k].source || "MAIN";
+            return (activeTab === 'main' && source === 'MAIN') || (activeTab === 'reseller' && source === 'RESELLER');
+        });
+
+        if (filteredKeys.length === 0) { 
+            container.innerHTML = `<div class='no-keys-text'>No ${activeTab} keys generated yet.</div>`; 
             updateStats(); 
             return; 
         }
 
-        Object.values(timerIntervals).forEach(clearInterval); timerIntervals = {};
-        
-        
-        const sortedKeys = Object.keys(data).sort((a, b) => data[b].createdAt - data[a].createdAt);
+        const sortedKeys = filteredKeys.sort((a, b) => currentKeysData[b].createdAt - currentKeysData[a].createdAt);
         
         let indexCounter = 1;
         sortedKeys.forEach((k, index) => {
-            const keyData = data[k];
+            const keyData = currentKeysData[k];
             const card = document.createElement('div');
             card.className = 'key-card';
             if (!isAllExpanded && index > 0) card.style.display = 'none';
@@ -315,7 +341,7 @@
             card.innerHTML = `
                 <div class="card-header">
                     <div class="card-left" onclick="toggleDetails('${k}')">
-                        <span class="key-index">Key #${indexCounter} (${keyData.source})</span>
+                        <span class="key-index">Key #${indexCounter}</span>
                         <div class="key-name-wrapper">
                             <span class="key-name">${k}</span>
                             <button class="btn-copy" onclick="event.stopPropagation(); copyKey('${k}')" title="Copy Key"><i class="fa-regular fa-copy"></i></button>
@@ -340,10 +366,9 @@
         });
         
         updateStats(); 
-        sortedKeys.forEach(k => startTimer(k, data[k]));
+        sortedKeys.forEach(k => startTimer(k, currentKeysData[k]));
     }
 
-    
     function toggleViewAll() {
         isAllExpanded = !isAllExpanded;
         const btn = document.getElementById('viewAllBtn');
@@ -366,7 +391,6 @@
         }
     }
 
-
     function toggleDetails(key) {
         const body = document.getElementById(`body-${key}`);
         const arrow = document.getElementById(`arrow-${key}`);
@@ -376,20 +400,17 @@
         if (!isCurrentlyActive) { body.classList.add('active'); arrow.classList.add('down'); }
     }
 
-
     async function togglePause(key) {
         await fetch(`/toggle-pause?password=${ADMIN_PASS}&key=${key}`);
         loadKeys(); 
     }
 
-    
     async function deleteKey(key) {
         if(!confirm("Sigurado ka bang gusto mong i-delete ang key na ito?")) return;
         await fetch(`/delete?password=${ADMIN_PASS}&key=${key}`);
         loadKeys(); 
     }
 
-    
     function startTimer(key, keyData) {
         const timeEl = document.getElementById(`time-${key}`);
         if (!timeEl) return;
