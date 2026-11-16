@@ -7,179 +7,51 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap');
         * { box-sizing: border-box; }
-        
-        body { 
-            background-color: #030005; 
-            color: #fff; 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            overflow: hidden; 
-        }
-        
+        body { background-color: #030005; color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: radial-gradient(circle at 50% 0%, #2e0a4f 0%, #030005 60%); }
-
-        .navbar { 
-            width: 100%; 
-            padding: 15px 20px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            border-bottom: 1px solid rgba(168, 85, 247, 0.2); 
-            background: rgba(5,5,5,0.8); 
-            backdrop-filter: blur(15px); 
-            position: fixed; 
-            top: 0; 
-            z-index: 100; 
-        }
-        .logo-text { 
-            font-family: 'Orbitron', sans-serif; 
-            font-size: 20px; 
-            color: #c084fc; 
-            margin: 0; 
-            letter-spacing: 3px; 
-            text-shadow: 0 0 20px rgba(168, 85, 247, 1); 
-            text-align: center;
-        }
-        
-        .logout-btn { 
-            background: rgba(168, 85, 247, 0.15); 
-            border: 1px solid #a855f7; 
-            color: #c084fc; 
-            padding: 6px 12px; 
-            border-radius: 6px; 
-            font-size: 11px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            display: none; 
-            align-items: center; 
-            gap: 6px; 
-            font-family: 'Inter', sans-serif; 
-            font-weight: 600; 
-            position: absolute;
-            right: 20px;
-        }
+        .navbar { width: 100%; padding: 15px 20px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid rgba(168, 85, 247, 0.2); background: rgba(5,5,5,0.8); backdrop-filter: blur(15px); position: fixed; top: 0; z-index: 100; }
+        .logo-text { font-family: 'Orbitron', sans-serif; font-size: 20px; color: #c084fc; margin: 0; letter-spacing: 3px; text-shadow: 0 0 20px rgba(168, 85, 247, 1); text-align: center; }
+        .logout-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; color: #c084fc; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: 0.3s; display: none; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-weight: 600; position: absolute; right: 20px; }
         .logout-btn:hover { background: rgba(168, 85, 247, 0.4); color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
-
-        .login-container { 
-            position: relative; 
-            z-index: 10; 
-            width: 100%; 
-            max-width: 350px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            animation: fadeIn 0.8s ease-out; 
-            margin-top: 50px;
-        }
-        
-        .form-box { 
-            background: rgba(15, 15, 23, 0.6); 
-            backdrop-filter: blur(20px); 
-            padding: 60px 30px 30px 30px; 
-            border-radius: 20px; 
-            width: 100%; 
-            border: 1px solid rgba(168, 85, 247, 0.4); 
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(168, 85, 247, 0.1); 
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo-overlay {
-            position: absolute;
-            top: -65px;
-            width: 130px;
-            height: 130px;
-            background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo-overlay img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.9));
-        }
-
+        .login-container { position: relative; z-index: 10; width: 100%; max-width: 350px; display: flex; flex-direction: column; align-items: center; text-align: center; animation: fadeIn 0.8s ease-out; margin-top: 50px; }
+        .form-box { background: rgba(15, 15, 23, 0.6); backdrop-filter: blur(20px); padding: 60px 30px 30px 30px; border-radius: 20px; width: 100%; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(168, 85, 247, 0.1); position: relative; display: flex; flex-direction: column; align-items: center; }
+        .logo-overlay { position: absolute; top: -65px; width: 130px; height: 130px; background: transparent; display: flex; justify-content: center; align-items: center; }
+        .logo-overlay img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.9)); }
         .hero-title { font-family: 'Orbitron', sans-serif; font-size: 22px; margin: 0 0 20px 0; letter-spacing: 2px; }
         .hero-title span { color: #c084fc; text-shadow: 0 0 20px rgba(168, 85, 247, 1); }
-        
         input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(168, 85, 247, 0.3); background-color: #050505; color: #fff; font-size: 14px; outline: none; margin-bottom: 20px; transition: 0.3s; font-family: 'Inter', sans-serif; text-align: center; letter-spacing: 2px; }
         input:focus { border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); background-color: #0a0a0f; }
-        
         .sign-in-btn { background: linear-gradient(135deg, #a855f7, #d946ef); color: white; border: none; border-radius: 10px; padding: 15px; font-size: 16px; font-family: 'Orbitron', sans-serif; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 0 25px rgba(217, 70, 239, 0.5); transition: 0.3s; letter-spacing: 2px; }
         .sign-in-btn:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(217, 70, 239, 0.8); }
-
         .footer-text { margin-top: 25px; font-size: 12px; color: #888; }
         .footer-text span { color: #c084fc; font-weight: bold; }
-
-        .main-container { 
-            position: relative; 
-            z-index: 10; 
-            width: 100%; 
-            max-width: 500px; 
-            padding: 80px 20px 20px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            animation: fadeIn 0.8s ease-out; 
-            max-height: 100vh;
-        }
-        
+        .main-container { position: relative; z-index: 10; width: 100%; max-width: 500px; padding: 80px 20px 20px 20px; display: flex; flex-direction: column; align-items: center; animation: fadeIn 0.8s ease-out; max-height: 100vh; }
         .hero-header { text-align: center; margin-bottom: 15px; width: 100%; flex-shrink: 0; }
-        
-        .banner-image { 
-            width: 100%; 
-            height: auto;
-            max-height: 150px;
-            object-fit: cover;
-            display: block; 
-            border-radius: 15px; 
-            margin: 0 auto 15px auto; 
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-        }
-        
+        .banner-image { width: 100%; height: auto; max-height: 150px; object-fit: cover; display: block; border-radius: 15px; margin: 0 auto 15px auto; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); border: 1px solid rgba(168, 85, 247, 0.3); }
         .hero-title { font-family: 'Orbitron', sans-serif; font-size: 24px; margin: 0 0 5px 0; letter-spacing: 2px; }
         .hero-title span { color: #c084fc; text-shadow: 0 0 20px rgba(168, 85, 247, 1); }
         .hero-subtitle { font-size: 12px; color: #a0a0b0; margin: 0; letter-spacing: 1px; }
-
         .admin-form-box { background: rgba(15,15,23,0.7); backdrop-filter: blur(20px); padding: 15px; border-radius: 12px; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); width: 100%; margin-bottom: 15px; flex-shrink: 0; }
         .expiry-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: stretch; }
         .expiry-row input, .expiry-row select { flex: 1; width: 0; height: 45px; margin: 0 !important; padding: 0 15px; border-radius: 8px; background: #050505; color: #fff; border: 1px solid rgba(168, 85, 247, 0.3); outline: none; text-align: center; font-family: 'Inter', sans-serif; font-size: 14px; -webkit-appearance: none; -moz-appearance: none; appearance: none; transition: 0.3s; }
         .expiry-row select { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px center; background-size: 10px; padding-right: 30px; }
         .expiry-row input:focus, .expiry-row select:focus { border-color: #a855f7; box-shadow: 0 0 15px rgba(168,85,247,0.4); }
         .label-text { display: block; margin-bottom: 8px; font-size: 11px; color: #c084fc; text-align: left; font-weight: 600; letter-spacing: 1px; }
-        
         .sign-in-btn { background: linear-gradient(135deg, #a855f7, #d946ef); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-family: 'Orbitron', sans-serif; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 0 20px rgba(217, 70, 239, 0.4); transition: 0.3s; letter-spacing: 1px; }
         .sign-in-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(217, 70, 239, 0.7); }
-
         .tab-container { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; flex-shrink: 0; }
         .tab-btn { flex: 1; padding: 10px; background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.2); color: #a0a0b0; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-family: 'Inter', sans-serif; }
         .tab-btn.active { background: linear-gradient(to right, #a855f7, #d946ef); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(168,85,247,0.5); }
-
         .keys-header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px; flex-shrink: 0; }
         .keys-section-title { font-size: 11px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 2px; text-align: left; font-weight: bold; margin: 0; }
-        
         .view-all-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-weight: 600; }
         .view-all-btn:hover { background: rgba(168, 85, 247, 0.4); color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
         .view-all-btn i { transition: 0.3s; font-size: 9px; }
         .view-all-btn.open i { transform: rotate(180deg); }
-        
         .keys-container { width: 100%; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex: 1; padding-right: 5px; padding-bottom: 10px; }
         .keys-container::-webkit-scrollbar { width: 4px; }
         .keys-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
         .keys-container::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 10px; }
-        
         .key-card { background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4); transition: 0.3s; flex-shrink: 0; }
         .key-card:hover { border-color: #a855f7; box-shadow: 0 5px 20px rgba(168, 85, 247, 0.2); }
         .card-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
@@ -191,13 +63,11 @@
         .btn-copy { background: transparent; border: none; color: #a0a0b0; font-size: 13px; cursor: pointer; padding: 0; transition: 0.2s; }
         .btn-copy:hover { color: #fff; transform: scale(1.1); }
         .card-right { display: flex; align-items: center; gap: 8px; }
-        
         .status-badge { font-size: 9px; padding: 4px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; min-width: 65px; text-align: center; box-shadow: 0 0 10px rgba(0,0,0,0.3); }
         .status-UNUSED { background-color: #fbbf24; color: #000; }
         .status-ACTIVE { background-color: #4ade80; color: #000; }
         .status-PAUSED { background-color: #3b82f6; color: #fff; }
         .status-EXPIRED { background-color: #ef4444; color: #fff; }
-
         .btn-icon { width: 30px; height: 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; justify-content: center; align-items: center; padding: 0; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .btn-icon:hover { transform: translateY(-2px); }
         .btn-pause { background-color: #f59e0b; color: white; }
@@ -205,52 +75,40 @@
         .btn-delete { background-color: #ef4444; color: white; }
         .arrow-box { width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; color: #a0a0b0; font-size: 10px; cursor: pointer; transition: 0.3s; }
         .arrow-box.down { transform: rotate(180deg); color: #fff; }
-        
         .card-body { display: none; padding: 12px 15px; background-color: rgba(10, 10, 15, 0.9); border-top: 1px solid rgba(168, 85, 247, 0.2); font-size: 12px; color: #ccc; }
         .card-body.active { display: block; }
         .detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed rgba(168, 85, 247, 0.3); }
         .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .detail-row span:first-child { color: #a0a0b0; font-weight: 600; }
         .detail-row span:last-child { font-weight: bold; color: #fff; text-align: right; }
-        
         .no-keys-text { color: #a0a0b0; font-size: 12px; text-align: center; font-style: italic; padding: 20px; background: rgba(15,15,23,0.5); border-radius: 10px; border: 1px dashed rgba(168, 85, 247, 0.3); }
-        
         .site-footer { width: 100%; padding: 10px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid rgba(168, 85, 247, 0.2); background: rgba(5,5,5,0.8); backdrop-filter: blur(15px); position: fixed; bottom: 0; z-index: 100; }
         .site-footer span { color: #c084fc; font-weight: bold; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <canvas id="particle-canvas"></canvas>
-
     <div class="navbar">
         <h1 class="logo-text">CODEX VIP PANEL</h1>
-        <button class="logout-btn" id="logoutBtn" onclick="logout()">
-            Logout <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
+        <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout <i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
-
     <div class="login-container" id="loginScreen">
         <div class="form-box">
-            <div class="logo-overlay">
-                <img src="https://i.ibb.co/84R90TKX/ec3c737f1e0c.png" alt="Codex Logo">
-            </div>
+            <div class="logo-overlay"><img src="https://i.ibb.co/84R90TKX/ec3c737f1e0c.png" alt="Codex Logo"></div>
             <h1 class="hero-title">LOGIN <span>PANEL</span></h1>
             <input type="password" id="adminPass" placeholder="Enter Admin Password">
             <button class="sign-in-btn" onclick="login()">ENTER</button>
         </div>
         <p class="footer-text">Need access? Contact <span>GeoDevs69</span></p>
     </div>
-
     <div class="main-container" id="adminPanel" style="display: none;">
         <div class="hero-header">
             <img src="https://i.ibb.co/nsh3nG0T/ce8625bef5c3.png" alt="Codex Banner" class="banner-image">
             <h1 class="hero-title">CONTROL <span>PANEL</span></h1>
             <p class="hero-subtitle">Generate and manage your license keys</p>
         </div>
-
         <div class="admin-form-box">
             <label class="label-text">TIME EXPIRY</label>
             <div class="expiry-row">
@@ -266,24 +124,17 @@
             </div>
             <button class="sign-in-btn" onclick="generateKey()">GENERATE KEY</button>
         </div>
-
         <div class="tab-container">
             <button class="tab-btn active" onclick="filterKeys('MAIN')">Generated Keys</button>
             <button class="tab-btn" onclick="filterKeys('RESELLER')">Resellers Keys</button>
         </div>
-
         <div class="keys-header-row">
             <div class="keys-section-title">ACTIVE LICENSES</div>
-            <button class="view-all-btn" id="viewAllBtn" onclick="toggleViewAll()">
-                View All <i class="fa-solid fa-chevron-down"></i>
-            </button>
+            <button class="view-all-btn" id="viewAllBtn" onclick="toggleViewAll()">View All <i class="fa-solid fa-chevron-down"></i></button>
         </div>
-
         <div class="keys-container" id="keysList"></div>
     </div>
-
     <div class="site-footer">All Rights Reserved &copy; <span>@Admin GeoDevs69</span> - 2024</div>
-
 <script>
     const ADMIN_PASS = "CodexSquad101"; 
     let timerIntervals = {};
@@ -295,7 +146,6 @@
         const pass = document.getElementById('adminPass').value;
         if (pass === ADMIN_PASS) {
             localStorage.setItem('mainPanelAuth', 'true');
-            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'flex';
             document.getElementById('logoutBtn').style.display = 'flex';
@@ -307,14 +157,11 @@
 
     function logout() {
         localStorage.removeItem('mainPanelAuth');
-        
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('adminPanel').style.display = 'none';
         document.getElementById('logoutBtn').style.display = 'none';
         document.getElementById('adminPass').value = "";
-        
         document.getElementById('keysList').innerHTML = "";
-        
         Object.values(timerIntervals).forEach(clearInterval);
         timerIntervals = {};
     }
@@ -332,10 +179,8 @@
     async function generateKey() {
         const duration = document.getElementById('duration').value;
         const unit = document.getElementById('unit').value;
-        
         const res = await fetch(`/generate?password=${ADMIN_PASS}&duration=${duration}&unit=${unit}`);
         const data = await res.json();
-        
         if (data.status === "success") {
             isAllExpanded = false;
             document.getElementById('viewAllBtn').classList.remove('open');
@@ -350,65 +195,64 @@
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         if(type === 'MAIN') document.querySelectorAll('.tab-btn')[0].classList.add('active');
         else document.querySelectorAll('.tab-btn')[1].classList.add('active');
-        
         isAllExpanded = false;
         document.getElementById('viewAllBtn').classList.remove('open');
         renderKeys();
     }
 
     async function loadKeys() {
-        const res = await fetch(`/list?password=${ADMIN_PASS}`);
-        allKeysData = await res.json();
-        renderKeys();
+        try {
+            const res = await fetch(`/list?password=${ADMIN_PASS}`);
+            if (!res.ok) throw new Error("Server error");
+            const data = await res.json();
+            if (data.status === "error") return;
+            allKeysData = data;
+            renderKeys();
+        } catch (err) {
+            console.error("Load Error:", err);
+        }
     }
 
-    function copyKey(key) {
-        navigator.clipboard.writeText(key);
-    }
+    function copyKey(key) { navigator.clipboard.writeText(key); }
 
     function renderKeys() {
         const container = document.getElementById('keysList');
         container.innerHTML = "";
-
-        const filteredKeys = Object.keys(allKeysData).filter(k => (allKeysData[k].source || "MAIN") === currentFilter);
-
+        if (!allKeysData || typeof allKeysData !== 'object' || allKeysData === null) {
+            container.innerHTML = `<div class='no-keys-text'>Failed to load keys.</div>`;
+            return;
+        }
+        const filteredKeys = Object.keys(allKeysData).filter(k => {
+            const kd = allKeysData[k];
+            return kd && typeof kd === 'object' && (kd.source || "MAIN") === currentFilter;
+        });
         if (filteredKeys.length === 0) {
             container.innerHTML = `<div class='no-keys-text'>No ${currentFilter} keys generated yet.</div>`;
             return;
         }
-
         Object.values(timerIntervals).forEach(clearInterval);
         timerIntervals = {};
-
         filteredKeys.sort((a, b) => allKeysData[a].createdAt - allKeysData[b].createdAt);
         let indexCounter = 1;
-
         filteredKeys.forEach((k, index) => {
             const keyData = allKeysData[k];
             const card = document.createElement('div');
             card.className = 'key-card';
-            
-            if (!isAllExpanded && index > 0) {
-                card.style.display = 'none';
-            }
-            
+            if (!isAllExpanded && index > 0) card.style.display = 'none';
             let pauseIcon = "▶️", pauseClass = "btn-resume";
             if (keyData.status === "ACTIVE") { pauseIcon = "⏸️"; pauseClass = "btn-pause"; }
             let currentStatus = keyData.status || "UNKNOWN";
-            if (currentStatus === "ACTIVE" && keyData.expires && new Date() > new Date(keyData.expires)) {
-                currentStatus = "EXPIRED"; 
-            }
+            if (currentStatus === "ACTIVE" && keyData.expires && new Date() > new Date(keyData.expires)) currentStatus = "EXPIRED"; 
             const currentHwid = keyData.hwid || "WALA_PA";
-
+            const duration = keyData.duration || 0;
+            const unit = keyData.unit || "N/A";
             card.innerHTML = `
                 <div class="card-header">
                     <div class="card-left" onclick="toggleDetails('${k}')">
                         <span class="key-index">Key #${indexCounter}</span>
                         <div class="key-name-wrapper">
                             <span class="key-name">${k}</span>
-                            <button class="btn-copy" onclick="event.stopPropagation(); copyKey('${k}')" title="Copy Key">
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
+                            <button class="btn-copy" onclick="event.stopPropagation(); copyKey('${k}')" title="Copy Key"><i class="fa-regular fa-copy"></i></button>
                         </div>
                     </div>
                     <div class="card-right">
@@ -419,18 +263,15 @@
                     </div>
                 </div>
                 <div class="card-body" id="body-${k}">
-                    <div class="detail-row"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
+                    <div class="detail-row"><span>Time Valid:</span> <span>${duration} ${unit}</span></div>
                     <div class="detail-row"><span>HWID / IP:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentHwid}</span></div>
                     <div class="detail-row"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
-                    <div class="detail-row" style="color:#4ade80; font-size:13px; margin-top:8px; border: none;">
-                        <span>Time Left:</span> <span id="time-${k}">Calculating...</span>
-                    </div>
+                    <div class="detail-row" style="color:#4ade80; font-size:13px; margin-top:8px; border: none;"><span>Time Left:</span> <span id="time-${k}">Calculating...</span></div>
                 </div>
             `;
             container.appendChild(card);
             indexCounter++;
         });
-
         filteredKeys.forEach(k => startTimer(k, allKeysData[k]));
     }
 
@@ -438,12 +279,9 @@
         isAllExpanded = !isAllExpanded;
         const btn = document.getElementById('viewAllBtn');
         const cards = document.querySelectorAll('.key-card');
-
         if (isAllExpanded) {
             btn.classList.add('open');
-            cards.forEach((card, index) => {
-                if (index > 0) card.style.display = 'block';
-            });
+            cards.forEach((card, index) => { if (index > 0) card.style.display = 'block'; });
         } else {
             btn.classList.remove('open');
             cards.forEach((card, index) => {
@@ -462,15 +300,9 @@
     function toggleDetails(key) {
         const body = document.getElementById(`body-${key}`);
         const arrow = document.getElementById(`arrow-${key}`);
-        
         const isCurrentlyActive = body.classList.contains('active');
-
-        const allBodies = document.querySelectorAll('.card-body');
-        const allArrows = document.querySelectorAll('.arrow-box');
-        
-        allBodies.forEach(b => b.classList.remove('active'));
-        allArrows.forEach(a => a.classList.remove('down'));
-
+        document.querySelectorAll('.card-body').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.arrow-box').forEach(a => a.classList.remove('down'));
         if (!isCurrentlyActive) {
             body.classList.add('active');
             arrow.classList.add('down');
@@ -490,43 +322,21 @@
     function startTimer(key, keyData) {
         const timeEl = document.getElementById(`time-${key}`);
         if (!timeEl) return;
-
-        if (keyData.status === "UNUSED") {
-            timeEl.innerText = "Waiting for first use";
-            timeEl.style.color = "#fbbf24";
-            return;
-        }
-        if (keyData.status === "PAUSED") {
-            timeEl.innerText = "ON HOLD (Paused)";
-            timeEl.style.color = "#f59e0b";
-            return;
-        }
-
+        if (keyData.status === "UNUSED") { timeEl.innerText = "Waiting for first use"; timeEl.style.color = "#fbbf24"; return; }
+        if (keyData.status === "PAUSED") { timeEl.innerText = "ON HOLD (Paused)"; timeEl.style.color = "#f59e0b"; return; }
         let timeLeftMs = new Date(keyData.expires) - new Date();
-        
+        if (isNaN(timeLeftMs)) { timeEl.innerText = "N/A"; return; }
         if (timeLeftMs <= 0) {
-            timeEl.innerText = "EXPIRED";
-            timeEl.style.color = "#ef4444";
-            
+            timeEl.innerText = "EXPIRED"; timeEl.style.color = "#ef4444";
             const badge = timeEl.closest('.key-card').querySelector('.status-badge');
-            if(badge) {
-                badge.className = 'status-badge status-EXPIRED';
-                badge.innerText = 'EXPIRED';
-            }
+            if(badge) { badge.className = 'status-badge status-EXPIRED'; badge.innerText = 'EXPIRED'; }
             return;
         }
-
         timerIntervals[key] = setInterval(() => {
             if (timeLeftMs <= 0) {
-                timeEl.innerText = "EXPIRED";
-                timeEl.style.color = "#ef4444";
-                clearInterval(timerIntervals[key]);
-                
+                timeEl.innerText = "EXPIRED"; timeEl.style.color = "#ef4444"; clearInterval(timerIntervals[key]);
                 const badge = timeEl.closest('.key-card').querySelector('.status-badge');
-                if(badge) {
-                    badge.className = 'status-badge status-EXPIRED';
-                    badge.innerText = 'EXPIRED';
-                }
+                if(badge) { badge.className = 'status-badge status-EXPIRED'; badge.innerText = 'EXPIRED'; }
                 return;
             }
             let totalSec = Math.floor(timeLeftMs / 1000);
@@ -543,72 +353,27 @@
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
-
     class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.vx = (Math.random() - 0.5) * 0.8;
-            this.vy = (Math.random() - 0.5) * 0.8;
-            this.radius = Math.random() * 1.5 + 0.5;
-        }
-        update() {
-            this.x += this.vx;
-            this.y += this.vy;
-
-            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(168, 85, 247, 0.6)';
-            ctx.fill();
-        }
+        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.8; this.vy = (Math.random() - 0.5) * 0.8; this.radius = Math.random() * 1.5 + 0.5; }
+        update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > canvas.width) this.vx *= -1; if (this.y < 0 || this.y > canvas.height) this.vy *= -1; }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = 'rgba(168, 85, 247, 0.6)'; ctx.fill(); }
     }
-
-    function initParticles() {
-        particles = [];
-        const particleCount = Math.floor(window.innerWidth / 15);
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-    }
-
+    function initParticles() { particles = []; const particleCount = Math.floor(window.innerWidth / 15); for (let i = 0; i < particleCount; i++) particles.push(new Particle()); }
     function animateParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
         for (let i = 0; i < particles.length; i++) {
-            particles[i].update();
-            particles[i].draw();
-            
+            particles[i].update(); particles[i].draw();
             for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                
-                if (dist < 120) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 - dist/600})`;
-                    ctx.lineWidth = 0.5;
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.stroke();
-                }
+                const dx = particles[i].x - particles[j].x; const dy = particles[i].y - particles[j].y; const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) { ctx.beginPath(); ctx.strokeStyle = `rgba(168, 85, 247, ${0.2 - dist/600})`; ctx.lineWidth = 0.5; ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
             }
         }
         requestAnimationFrame(animateParticles);
     }
-
-    initParticles();
-    animateParticles();
+    initParticles(); animateParticles();
 </script>
 </body>
 </html>
