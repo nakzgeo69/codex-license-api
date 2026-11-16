@@ -60,18 +60,18 @@ app.get('/generate', async (req, res) => {
 app.post('/api/reseller-generate', async (req, res) => {
     const { resellerKey, duration, unit } = req.body;
 
-    if (!resellerKey) return res.status(400).json({ status: "error", message: "Reseller Key Required" });
+    if (!resellerKey) return res.status(400).json({ status: "error", message: "Valid Key Required" });
 
     try {
         const resellerData = await LicenseKey.findOne({ key: resellerKey });
         if (!resellerData || resellerData.source !== "MAIN") {
-            return res.status(401).json({ status: "error", message: "Invalid Reseller Key" });
+            return res.status(401).json({ status: "error", message: "Invalid Key Found" });
         }
         if (resellerData.status === "PAUSED") {
             return res.status(403).json({ status: "error", message: "Reseller Access Revoked" });
         }
         if (resellerData.status === "ACTIVE" && new Date() > resellerData.expires) {
-            return res.status(403).json({ status: "error", message: "Reseller Key Expired" });
+            return res.status(403).json({ status: "error", message: "Your Key Expired" });
         }
 
         const key = `CODEX-${generateRandomString(4)}-${generateRandomString(4)}`;
@@ -169,11 +169,11 @@ app.post('/verify-reseller', async (req, res) => {
         // Kapag ACTIVE na, check kung expired na
         else if (keyData.status === "ACTIVE") {
             if (new Date() > keyData.expires) {
-                return res.status(403).json({ status: "expired", message: "Reseller Key Expired" });
+                return res.status(403).json({ status: "expired", message: "Your Key Expired" });
             }
         }
 
-        return res.json({ status: "success", message: "Valid Reseller Key" });
+        return res.json({ status: "success", message: "Valid Key Found" });
     } catch (err) {
         console.error(err);
         res.status(500).json({ status: "error", message: "Server Error" });
