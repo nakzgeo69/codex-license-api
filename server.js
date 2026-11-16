@@ -1,10 +1,10 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const cors = require('cors'); // 🔥 BAGO: Kailangan para sa Second Panel
+const cors = require('cors');
 const app = express();
 
-app.use(cors()); // 🔥 BAGO: Payagan ang cross-origin requests
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -23,7 +23,8 @@ const keySchema = new mongoose.Schema({
     unit: { type: String, required: true },
     expires: { type: Date, default: null },
     pausedTimeLeft: { type: Number, default: null },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    source: { type: String, default: "MAIN" } // 🔥 BAGO: "MAIN" o "RESELLER"
 });
 
 const LicenseKey = mongoose.model('LicenseKey', keySchema);
@@ -37,30 +38,54 @@ function generateRandomString(length) {
     return result;
 }
 
+// Generate (Para sa Main Admin)
 app.get('/generate', async (req, res) => {
     const { password, duration, unit } = req.query;
-
-    if (password !== ADMIN_PASSWORD) {
-        return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
-    }
+    if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
 
     const key = `CODEX-${generateRandomString(4)}-${generateRandomString(4)}`;
-    
-    const newKey = new LicenseKey({
-        key: key,
-        duration: parseInt(duration),
-        unit: unit
-    });
+    const newKey = new LicenseKey({ key, duration: parseInt(duration), unit, source: "MAIN" });
 
     try {
         await newKey.save();
         res.json({ status: "success", key: key });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error", message: "Database Error" });
     }
 });
 
+// 🔥 BAGO: Generate (Para sa Reseller Panel)
+app.post('/api/reseller-generate', async (req, res) => {
+    const { resellerKey, duration, unit } = req.body;
+
+    if (!resellerKey) return res.status(400).json({ status: "error", message: "Reseller Key Required" });
+
+    try {
+        // 1. I-verify kung valid ang reseller key
+        const resellerData = await LicenseKey.findOne({ key: resellerKey });
+        if (!resellerData || resellerData.source !== "MAIN") {
+            return res.status(401).json({ status: "error", message: "Invalid Reseller Key" });
+        }
+        if (resellerData.status === "PAUSED" || resellerData.status === "EXPIRED") {
+            return res.status(403).json({ status: "error", message: "Reseller Access Revoked" });
+        }
+        if (resellerData.status === "ACTIVE" && new Date() > resellerData.expires) {
+            return res.status(403).json({ status: "error", message: "Reseller Key Expired" });
+        }
+
+        // 2. Gumawa ng bagong key na naka-tag bilang RESELLER
+        const key = `CODEX-${generateRandomString(4)}-${generateRandomString(4)}`;
+        const newKey = new LicenseKey({ key, duration: parseInt(duration), unit, source: "RESELLER" });
+        await newKey.save();
+
+        res.json({ status: "success", key: key });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: "error", message: "Server Error" });
+    }
+});
+
+// Verify (Para sa GG Script / Clients)
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -69,9 +94,7 @@ app.post('/verify', async (req, res) => {
         const keyData = await LicenseKey.findOne({ key: key });
         if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
 
-        if (keyData.status === "PAUSED") {
-            return res.status(403).json({ status: "paused", message: "Key Successfully Hold!" });
-        }
+        if (keyData.status === "PAUSED") return res.status(403).json({ status: "paused", message: "Key Successfully Hold!" });
 
         if (keyData.status === "UNUSED") {
             let expires = new Date();
@@ -92,21 +115,16 @@ app.post('/verify', async (req, res) => {
 
         if (keyData.status === "ACTIVE") {
             if (keyData.hwid !== hwid) return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
-            
             const now = new Date();
             if (now > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
-            
             return res.json({ status: "success", message: "Valid" });
         }
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error", message: "Server Error" });
     }
 });
 
-// 🔥 BAGO: ENDPOINT PARA SA SECOND PANEL (RESELLER LOGIN)
-// Ito ang tinatawagan ng Second Panel para i-verify kung valid ang reseller key.
-// Hindi ito nag-a-activate ng key, check lang kung pwede gamitin.
+// Verify Reseller (Para sa Second Panel Login)
 app.post('/verify-reseller', async (req, res) => {
     const { key } = req.body;
     if (!key) return res.status(400).json({ status: "error", message: "Missing Key" });
@@ -114,50 +132,35 @@ app.post('/verify-reseller', async (req, res) => {
     try {
         const keyData = await LicenseKey.findOne({ key: key });
         if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
+        if (keyData.source !== "MAIN") return res.status(403).json({ status: "error", message: "Not a Reseller Key" });
 
-        if (keyData.status === "PAUSED") {
-            return res.status(403).json({ status: "paused", message: "Key is paused" });
-        }
-        
-        if (keyData.status === "ACTIVE") {
-            const now = new Date();
-            if (now > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
-        }
+        if (keyData.status === "PAUSED") return res.status(403).json({ status: "paused", message: "Key is paused" });
+        if (keyData.status === "ACTIVE" && new Date() > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
 
-        // Kapag valid at hindi expired, payagan ang access
         return res.json({ status: "success", message: "Valid Reseller Key" });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ status: "error", message: "Server Error" });
     }
 });
 
+// List (Ibabalik lahat, may source)
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
-    
     try {
         const keys = await LicenseKey.find();
         const formattedData = {};
-        
         keys.forEach(k => {
             formattedData[k.key] = {
-                hwid: k.hwid,
-                status: k.status,
-                duration: k.duration,
-                unit: k.unit,
-                expires: k.expires,
-                pausedTimeLeft: k.pausedTimeLeft,
-                createdAt: k.createdAt.getTime()
+                hwid: k.hwid, status: k.status, duration: k.duration, unit: k.unit,
+                expires: k.expires, pausedTimeLeft: k.pausedTimeLeft, createdAt: k.createdAt.getTime(),
+                source: k.source || "MAIN"
             };
         });
-        
         res.json(formattedData);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ status: "error" });
-    }
+    } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
+// Toggle Pause
 app.get('/toggle-pause', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
@@ -173,8 +176,7 @@ app.get('/toggle-pause', async (req, res) => {
             keyData.status = "PAUSED";
             await keyData.save();
             return res.json({ status: "success", message: "Key Successfully Hold!" });
-        } 
-        else if (keyData.status === "PAUSED") {
+        } else if (keyData.status === "PAUSED") {
             let newExpires = new Date();
             newExpires.setMilliseconds(newExpires.getMilliseconds() + keyData.pausedTimeLeft);
             keyData.expires = newExpires;
@@ -184,27 +186,19 @@ app.get('/toggle-pause', async (req, res) => {
             return res.json({ status: "success", message: "Key Successfully Resumed!" });
         }
         res.json({ status: "error", message: "Cannot pause UNUSED key" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ status: "error" });
-    }
+    } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
+// Delete
 app.get('/delete', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
-    
     try {
         const deleted = await LicenseKey.findOneAndDelete({ key: key });
-        if (deleted) {
-            return res.json({ status: "success", message: "Keys Successfully Deleted" });
-        }
+        if (deleted) return res.json({ status: "success", message: "Keys Successfully Deleted" });
         res.status(404).json({ status: "error", message: "Not found" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ status: "error" });
-    }
+    } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Main Server running on port ${PORT}`));
