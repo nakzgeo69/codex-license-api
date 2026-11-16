@@ -91,7 +91,13 @@ app.post('/api/reseller-generate', async (req, res) => {
         if (resellerData.status === "ACTIVE" && new Date() > resellerData.expires) return res.status(403).json({ status: "error", message: "Your Key Expired" });
 
         const key = `CODEX-${generateRandomString(4)}-${generateRandomString(4)}`;
-        const newKey = new LicenseKey({ key, duration: parseInt(duration), unit, source: "RESELLER" });
+        const newKey = new LicenseKey({ 
+            key, 
+            duration: parseInt(duration), 
+            unit, 
+            source: "RESELLER",
+            resellerId: resellerKey // Naka-tag kung sino ang reseller
+        });
         await newKey.save();
 
         res.json({ status: "success", key: key });
@@ -133,7 +139,7 @@ app.post('/verify', async (req, res) => {
     }
 });
 
-// 4. RESELLER VERIFY
+// 4. RESELLER VERIFY (Login ng Reseller Panel)
 app.post('/verify-reseller', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Key or Device ID" });
@@ -166,7 +172,7 @@ app.post('/verify-reseller', async (req, res) => {
     }
 });
 
-// 5. LIST KEYS
+// 5. LIST ALL KEYS (Para sa Main Admin Panel - Walang Filter)
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
     try {
