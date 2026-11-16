@@ -34,7 +34,6 @@
         .hero-title span { color: #c084fc; text-shadow: 0 0 20px rgba(168, 85, 247, 1); }
         .hero-subtitle { font-size: 12px; color: #a0a0b0; margin: 0; letter-spacing: 1px; }
         
-        /* STATS DASHBOARD CSS */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; flex-shrink: 0; }
         .stat-card { background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .stat-label { font-size: 9px; color: #a0a0b0; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px; }
@@ -49,7 +48,6 @@
         .sign-in-btn { background: linear-gradient(135deg, #a855f7, #d946ef); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-family: 'Orbitron', sans-serif; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 0 20px rgba(217, 70, 239, 0.4); transition: 0.3s; letter-spacing: 1px; }
         .sign-in-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(217, 70, 239, 0.7); }
         
-        /* TABS CSS */
         .tabs-container { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; }
         .tab-btn { flex: 1; background: rgba(15,15,23,0.7); border: 1px solid rgba(168, 85, 247, 0.3); color: #a0a0b0; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; transition: 0.3s; }
         .tab-btn.active { background: linear-gradient(135deg, #a855f7, #d946ef); color: white; border-color: #d946ef; box-shadow: 0 0 15px rgba(217, 70, 239, 0.4); }
@@ -130,7 +128,6 @@
             <p class="hero-subtitle">Generate and manage your license keys</p>
         </div>
 
-        <!-- STATS DASHBOARD -->
         <div class="stats-grid">
             <div class="stat-card">
                 <span class="stat-label">TOTAL KEYS</span>
@@ -166,7 +163,6 @@
             <button class="sign-in-btn" onclick="generateKey()">GENERATE KEY</button>
         </div>
 
-        <!-- TABS -->
         <div class="tabs-container">
             <button class="tab-btn active" id="tab-main" onclick="switchTab('main')">Generated Keys</button>
             <button class="tab-btn" id="tab-reseller" onclick="switchTab('reseller')">Resellers Keys</button>
@@ -186,7 +182,7 @@
     let timerIntervals = {};
     let isAllExpanded = false;
     let currentKeysData = {};
-    let activeTab = "main"; // Default tab
+    let activeTab = "main";
 
     async function login() {
         const pass = document.getElementById('adminPass').value;
@@ -201,7 +197,6 @@
             const res = await fetch(`/list?password=${pass}`);
             const data = await res.json();
 
-            // FIX: I-check kung error response (para hindi maging "status" at "message" ang keys)
             if (data.status === "error") {
                 errorEl.textContent = data.message || "Invalid Admin Password!"; 
                 errorEl.style.display = 'block'; 
@@ -215,7 +210,7 @@
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'flex';
                 document.getElementById('logoutBtn').style.display = 'flex';
-                loadKeys(data); // I-pass na agad ang data para hindi na mag-fetch ulit
+                loadKeys(data); 
             }
         } catch (err) { 
             errorEl.textContent = "Server error."; 
@@ -271,7 +266,7 @@
         if (data.status === "success") {
             isAllExpanded = false; 
             document.getElementById('viewAllBtn').classList.remove('open'); 
-            loadKeys(); // Mag-fetch ulit
+            loadKeys(); 
         } else { alert(data.message); }
     }
 
@@ -357,7 +352,6 @@
                 <div class="card-body" id="body-${k}">
                     <div class="detail-row"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
                     <div class="detail-row"><span>HWID / IP:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentHwid}</span></div>
-                    <div class="detail-row"><span>Reseller IP:</span> <span>${keyData.resellerIp || 'N/A'}</span></div>
                     <div class="detail-row"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
                     <div class="detail-row" style="color:#4ade80; font-size:13px; margin-top:8px; border: none;"><span>Time Left:</span> <span id="time-${k}">Calculating...</span></div>
                 </div>
@@ -454,6 +448,7 @@
             timeLeftMs -= 1000;
         }, 1000);
     }
+
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
