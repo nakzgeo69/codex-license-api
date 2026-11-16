@@ -24,7 +24,9 @@ const keySchema = new mongoose.Schema({
     expires: { type: Date, default: null },
     pausedTimeLeft: { type: Number, default: null },
     createdAt: { type: Date, default: Date.now },
-    source: { type: String, default: "MAIN" } // 🔥 BAGO: "MAIN" o "RESELLER"
+    source: { type: String, default: "MAIN" },
+    resellerIp: { type: String, default: null },
+    resellerId: { type: String, default: null } 
 });
 
 const LicenseKey = mongoose.model('LicenseKey', keySchema);
@@ -54,14 +56,13 @@ app.get('/generate', async (req, res) => {
     }
 });
 
-// 🔥 BAGO: Generate (Para sa Reseller Panel)
+// Generate (Para sa Reseller Panel)
 app.post('/api/reseller-generate', async (req, res) => {
     const { resellerKey, duration, unit } = req.body;
 
     if (!resellerKey) return res.status(400).json({ status: "error", message: "Reseller Key Required" });
 
     try {
-        // 1. I-verify kung valid ang reseller key
         const resellerData = await LicenseKey.findOne({ key: resellerKey });
         if (!resellerData || resellerData.source !== "MAIN") {
             return res.status(401).json({ status: "error", message: "Invalid Reseller Key" });
@@ -73,7 +74,6 @@ app.post('/api/reseller-generate', async (req, res) => {
             return res.status(403).json({ status: "error", message: "Reseller Key Expired" });
         }
 
-        // 2. Gumawa ng bagong key na naka-tag bilang RESELLER
         const key = `CODEX-${generateRandomString(4)}-${generateRandomString(4)}`;
         const newKey = new LicenseKey({ key, duration: parseInt(duration), unit, source: "RESELLER" });
         await newKey.save();
@@ -85,7 +85,7 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
-// Verify (Para sa GG Script / Clients)
+// Verify (Para sa GG Script / App Source / APK)
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -114,6 +114,13 @@ app.post('/verify', async (req, res) => {
         }
 
         if (keyData.status === "ACTIVE") {
+            // 🔥 KUNG ANG NAKA-SAVE AY IP (Galing sa Second Panel), PALITAN NG TOTOONG HWID
+            if (keyData.hwid && keyData.hwid.includes(".")) {
+                keyData.hwid = hwid; 
+                await keyData.save();
+                return res.json({ status: "success", message: "Key activated!" });
+            }
+            
             if (keyData.hwid !== hwid) return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
             const now = new Date();
             if (now > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
@@ -130,15 +137,33 @@ app.post('/verify-reseller', async (req, res) => {
     if (!key) return res.status(400).json({ status: "error", message: "Missing Key" });
 
     try {
+        const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || "Unknown IP";
+        const ipOnly = clientIp.split(',')[0].trim();
+
         const keyData = await LicenseKey.findOne({ key: key });
+        
         if (!keyData) return res.status(404).json({ status: "invalid", message: "Key not found" });
-        if (keyData.source !== "MAIN") return res.status(403).json({ status: "error", message: "Not a Reseller Key" });
+        if (keyData.source !== "MAIN") return res.status(403).json({ status: "error", message: "Not a Main Key" });
 
         if (keyData.status === "PAUSED") return res.status(403).json({ status: "paused", message: "Key is paused" });
-        if (keyData.status === "ACTIVE" && new Date() > keyData.expires) return res.status(403).json({ status: "expired", message: "Key expired" });
+        
+        if (keyData.status === "ACTIVE") {
+            if (keyData.hwid && keyData.hwid !== ipOnly && keyData.hwid !== "WALA_PA" && keyData.hwid.includes(".")) {
+                 return res.status(403).json({ status: "error", message: "Key already locked to another device" });
+            }
+            return res.json({ status: "success", message: "Valid Reseller Key" });
+        }
+
+        if (keyData.status === "UNUSED") {
+            keyData.status = "ACTIVE"; 
+            keyData.hwid = ipOnly; 
+            keyData.resellerId = "Reseller"; 
+            await keyData.save();
+        }
 
         return res.json({ status: "success", message: "Valid Reseller Key" });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ status: "error", message: "Server Error" });
     }
 });
@@ -153,7 +178,9 @@ app.get('/list', async (req, res) => {
             formattedData[k.key] = {
                 hwid: k.hwid, status: k.status, duration: k.duration, unit: k.unit,
                 expires: k.expires, pausedTimeLeft: k.pausedTimeLeft, createdAt: k.createdAt.getTime(),
-                source: k.source || "MAIN"
+                source: k.source || "MAIN",
+                resellerIp: k.resellerIp, 
+                resellerId: k.resellerId 
             };
         });
         res.json(formattedData);
