@@ -33,7 +33,6 @@
         .sign-in-btn:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(217, 70, 239, 0.8); }
         .keys-section-title { width: 100%; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; text-align: left; font-weight: bold; }
         
-        /* 🔥 TABS CSS */
         .tab-container { display: flex; gap: 10px; width: 100%; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; background: rgba(15,15,23,0.8); border: 1px solid #2d2d3d; color: #a0a0b0; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .tab-btn.active { background: linear-gradient(to right, #a855f7, #d946ef); color: white; border-color: transparent; box-shadow: 0 0 15px rgba(168,85,247,0.5); }
@@ -51,6 +50,7 @@
         .status-UNUSED { background-color: #fbbf24; color: #000; }
         .status-ACTIVE { background-color: #4ade80; color: #000; }
         .status-PAUSED { background-color: #f59e0b; color: #000; }
+
         .btn-icon { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center; padding: 0; }
         .btn-pause { background-color: #f59e0b; color: white; }
         .btn-resume { background-color: #10b981; color: white; }
@@ -108,7 +108,6 @@
 
         <div class="keys-section-title">Active Licenses</div>
 
-        <!-- 🔥 TABS -->
         <div class="tab-container">
             <button class="tab-btn active" onclick="filterKeys('MAIN')">My Keys</button>
             <button class="tab-btn" onclick="filterKeys('RESELLER')">Reseller Keys</button>
@@ -207,7 +206,7 @@
                 </div>
                 <div class="card-body" id="body-${k}">
                     <div class="detail-row"><span>Time Valid:</span> <span>${keyData.duration} ${keyData.unit}</span></div>
-                    <div class="detail-row"><span>HWID:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentHwid}</span></div>
+                    <div class="detail-row"><span>HWID / IP:</span> <span id="hwid-${k}" style="font-size:10px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentHwid}</span></div>
                     <div class="detail-row"><span>Expires At:</span> <span id="exp-${k}">${keyData.expires ? new Date(keyData.expires).toLocaleString() : 'Not Started'}</span></div>
                     <div class="detail-row" style="color:#4ade80; font-size:15px; margin-top:10px;">
                         <span>Time Left:</span> <span id="time-${k}">Calculating...</span>
