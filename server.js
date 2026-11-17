@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const fs = require('fs'); // <-- Idinagdag para sa auto-update
 const app = express();
 
 app.use(cors());
@@ -18,9 +19,11 @@ const limiter = rateLimit({
 app.use('/verify', limiter);
 app.use('/verify-reseller', limiter);
 app.use('/api/', limiter);
+app.use('/get-latest-script', limiter);
 
 const ADMIN_PASSWORD = "CodexSquad101"; 
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://geodevz69:GeoDevs69@cluster0.leanvjg.mongodb.net/licenseDB?retryWrites=true&w=majority";
+// MAHALAGA: Ilagay ang MONGO_URI sa Render Environment Variables, huwag dito.
+const MONGO_URI = process.env.MONGO_URI; 
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ Connected to MongoDB Atlas!'))
@@ -36,7 +39,7 @@ const keySchema = new mongoose.Schema({
     pausedTimeLeft: { type: Number, default: null },
     createdAt: { type: Date, default: Date.now },
     source: { type: String, default: "MAIN" },
-    resellerId: { type: String, default: null } // <--- ITO ANG TAG
+    resellerId: { type: String, default: null }
 });
 
 const LicenseKey = mongoose.model('LicenseKey', keySchema);
@@ -78,7 +81,7 @@ app.get('/generate', async (req, res) => {
     }
 });
 
-// 2. RESELLER GENERATE (Dito natin nilalagay ang resellerId)
+// 2. RESELLER GENERATE
 app.post('/api/reseller-generate', async (req, res) => {
     const { resellerKey, duration, unit } = req.body;
     if (!resellerKey || !duration || !unit) return res.status(400).json({ status: "error", message: "Missing required fields" });
@@ -96,7 +99,7 @@ app.post('/api/reseller-generate', async (req, res) => {
             duration: parseInt(duration), 
             unit, 
             source: "RESELLER",
-            resellerId: resellerKey // <--- NAKA-TAG KUNG SINO ANG GUMawa
+            resellerId: resellerKey 
         });
         await newKey.save();
 
@@ -106,7 +109,7 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
-// 3. CLIENT VERIFY (Para sa GG Script)
+// 3. CLIENT VERIFY
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -139,7 +142,7 @@ app.post('/verify', async (req, res) => {
     }
 });
 
-// 4. RESELLER VERIFY (Login ng Reseller Panel)
+// 4. RESELLER VERIFY
 app.post('/verify-reseller', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Key or Device ID" });
@@ -172,7 +175,7 @@ app.post('/verify-reseller', async (req, res) => {
     }
 });
 
-// 5. LIST ALL KEYS (Para sa MAIN PANEL - Walang filter, kita lahat)
+// 5. LIST ALL KEYS (Para sa Main Admin UI mo)
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
     try {
@@ -182,20 +185,34 @@ app.get('/list', async (req, res) => {
             formattedData[k.key] = {
                 hwid: k.hwid, status: k.status, duration: k.duration, unit: k.unit,
                 expires: k.expires, pausedTimeLeft: k.pausedTimeLeft, createdAt: k.createdAt.getTime(),
-                source: k.source || "MAIN",
-                resellerIp: null, 
-                resellerId: k.resellerId 
+                source: k.source || "MAIN", resellerIp: null, resellerId: k.resellerId 
             };
         });
         res.json(formattedData);
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// 6. TOGGLE PAUSE
+// 6. LIST RESELLER KEYS (Para sa Second Panel)
+app.get('/list-reseller', async (req, res) => {
+    const { resellerKey } = req.query;
+    if (!resellerKey) return res.status(400).json({ status: "error", message: "Missing Reseller Key" });
+    try {
+        const keys = await LicenseKey.find({ source: "RESELLER", resellerId: resellerKey }).select('key hwid status duration unit expires pausedTimeLeft createdAt source').lean();
+        const formattedData = {};
+        keys.forEach(k => {
+            formattedData[k.key] = {
+                hwid: k.hwid, status: k.status, duration: k.duration, unit: k.unit,
+                expires: k.expires, pausedTimeLeft: k.pausedTimeLeft, createdAt: k.createdAt.getTime(), source: k.source
+            };
+        });
+        res.json(formattedData);
+    } catch (err) { res.status(500).json({ status: "error" }); }
+});
+
+// 7. TOGGLE PAUSE
 app.get('/toggle-pause', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
-
     try {
         const keyData = await LicenseKey.findOne({ key: key });
         if (!keyData) return res.status(404).json({ status: "error", message: "Key not found" });
@@ -203,16 +220,12 @@ app.get('/toggle-pause', async (req, res) => {
         if (keyData.status === "ACTIVE") {
             let timeLeft = new Date(keyData.expires) - new Date();
             if (timeLeft < 0) timeLeft = 0;
-            keyData.pausedTimeLeft = timeLeft;
-            keyData.status = "PAUSED";
+            keyData.pausedTimeLeft = timeLeft; keyData.status = "PAUSED";
             await keyData.save();
             return res.json({ status: "success", message: "Key Successfully Hold!" });
         } else if (keyData.status === "PAUSED") {
-            let newExpires = new Date();
-            newExpires.setMilliseconds(newExpires.getMilliseconds() + keyData.pausedTimeLeft);
-            keyData.expires = newExpires;
-            keyData.pausedTimeLeft = null;
-            keyData.status = "ACTIVE";
+            let newExpires = new Date(); newExpires.setMilliseconds(newExpires.getMilliseconds() + keyData.pausedTimeLeft);
+            keyData.expires = newExpires; keyData.pausedTimeLeft = null; keyData.status = "ACTIVE";
             await keyData.save();
             return res.json({ status: "success", message: "Key Successfully Resumed!" });
         }
@@ -220,7 +233,7 @@ app.get('/toggle-pause', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// 7. DELETE KEY
+// 8. DELETE KEY
 app.get('/delete', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
@@ -229,6 +242,35 @@ app.get('/delete', async (req, res) => {
         if (deleted) return res.json({ status: "success", message: "Keys Successfully Deleted" });
         res.status(404).json({ status: "error", message: "Not found" });
     } catch (err) { res.status(500).json({ status: "error" }); }
+});
+
+// 9. GET LATEST SCRIPT
+app.post('/get-latest-script', async (req, res) => {
+    const { key, hwid } = req.body;
+    if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
+
+    try {
+        const keyData = await LicenseKey.findOne({ key: key });
+        if (!keyData) return res.status(404).json({ status: "error", message: "Key not found" });
+        if (keyData.status === "PAUSED") return res.status(403).json({ status: "error", message: "Key is paused" });
+
+        if (keyData.status === "UNUSED") {
+            keyData.expires = calculateExpiry(keyData.unit, keyData.duration);
+            keyData.hwid = hwid; keyData.status = "ACTIVE";
+            await keyData.save();
+        } else if (keyData.status === "ACTIVE") {
+            if (keyData.hwid !== hwid) return res.status(403).json({ status: "error", message: "Key locked" });
+            if (new Date() > keyData.expires) return res.status(403).json({ status: "error", message: "Key expired" });
+        }
+
+        const scriptPath = path.join(__dirname, 'latest_script.lua');
+        if (!fs.existsSync(scriptPath)) return res.status(500).json({ status: "error", message: "Script file not found." });
+
+        const scriptContent = fs.readFileSync(scriptPath, 'utf8');
+        return res.json({ status: "success", script: scriptContent });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: "Server Error" });
+    }
 });
 
 const PORT = process.env.PORT || 10000;
