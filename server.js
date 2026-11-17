@@ -36,7 +36,7 @@ const keySchema = new mongoose.Schema({
     pausedTimeLeft: { type: Number, default: null },
     createdAt: { type: Date, default: Date.now },
     source: { type: String, default: "MAIN" },
-    resellerId: { type: String, default: null } 
+    resellerId: { type: String, default: null } // <--- ITO ANG TAG
 });
 
 const LicenseKey = mongoose.model('LicenseKey', keySchema);
@@ -78,7 +78,7 @@ app.get('/generate', async (req, res) => {
     }
 });
 
-// 2. RESELLER GENERATE
+// 2. RESELLER GENERATE (Dito natin nilalagay ang resellerId)
 app.post('/api/reseller-generate', async (req, res) => {
     const { resellerKey, duration, unit } = req.body;
     if (!resellerKey || !duration || !unit) return res.status(400).json({ status: "error", message: "Missing required fields" });
@@ -96,7 +96,7 @@ app.post('/api/reseller-generate', async (req, res) => {
             duration: parseInt(duration), 
             unit, 
             source: "RESELLER",
-            resellerId: resellerKey // Naka-tag kung sino ang reseller
+            resellerId: resellerKey // <--- NAKA-TAG KUNG SINO ANG GUMawa
         });
         await newKey.save();
 
@@ -106,7 +106,7 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
-// 3. CLIENT VERIFY (GG Script)
+// 3. CLIENT VERIFY (Para sa GG Script)
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -172,7 +172,7 @@ app.post('/verify-reseller', async (req, res) => {
     }
 });
 
-// 5. LIST ALL KEYS (Para sa Main Admin Panel - Walang Filter)
+// 5. LIST ALL KEYS (Para sa MAIN PANEL - Walang filter, kita lahat)
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
     try {
