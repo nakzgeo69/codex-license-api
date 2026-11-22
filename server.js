@@ -105,7 +105,6 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
-// FIXED: IDINAGDAG ANG EXPIRES SA RESPONSE
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -121,7 +120,6 @@ app.post('/verify', async (req, res) => {
             keyData.hwid = hwid; 
             keyData.status = "ACTIVE";
             await keyData.save();
-            // IDINAGDAG: expires field
             return res.json({ status: "success", message: "Key activated!", expires: keyData.expires });
         }
 
@@ -132,7 +130,6 @@ app.post('/verify', async (req, res) => {
             if (new Date() > keyData.expires) {
                 return res.status(403).json({ status: "expired", message: "Key expired" });
             }
-            // IDINAGDAG: expires field
             return res.json({ status: "success", message: "Valid", expires: keyData.expires });
         }
     } catch (err) {
