@@ -3,7 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const fs = require('fs');
+const fs = require('fs'); 
 const app = express();
 
 app.use(cors());
@@ -45,9 +45,7 @@ const LicenseKey = mongoose.model('LicenseKey', keySchema);
 function generateRandomString(length) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+    for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
     return result;
 }
 
@@ -105,6 +103,7 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
+// BINAGO KO ITO PARA IBALIK ANG EXPIRES
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -125,7 +124,13 @@ app.post('/verify', async (req, res) => {
 
         if (keyData.status === "ACTIVE") {
             if (keyData.hwid !== hwid) {
-                return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
+                // AUTO-FIX SA LUMANG WEB-NIL BUG
+                if (keyData.hwid.includes("nil") || keyData.hwid.includes("FALLBACK") || keyData.hwid === "WALA_PA") {
+                    keyData.hwid = hwid;
+                    await keyData.save();
+                } else {
+                    return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
+                }
             }
             if (new Date() > keyData.expires) {
                 return res.status(403).json({ status: "expired", message: "Key expired" });
