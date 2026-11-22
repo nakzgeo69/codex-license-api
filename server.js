@@ -3,14 +3,13 @@ const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const fs = require('fs'); // <-- Idinagdag para sa auto-update
+const fs = require('fs');
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Security: Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 200,
@@ -22,7 +21,6 @@ app.use('/api/', limiter);
 app.use('/get-latest-script', limiter);
 
 const ADMIN_PASSWORD = "CodexSquad101"; 
-// MAHALAGA: Ilagay ang MONGO_URI sa Render Environment Variables, huwag dito.
 const MONGO_URI = process.env.MONGO_URI; 
 
 mongoose.connect(MONGO_URI)
@@ -64,7 +62,6 @@ function calculateExpiry(unit, duration) {
     return expires;
 }
 
-// 1. MAIN GENERATE
 app.get('/generate', async (req, res) => {
     const { password, duration, unit } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
@@ -81,7 +78,6 @@ app.get('/generate', async (req, res) => {
     }
 });
 
-// 2. RESELLER GENERATE
 app.post('/api/reseller-generate', async (req, res) => {
     const { resellerKey, duration, unit } = req.body;
     if (!resellerKey || !duration || !unit) return res.status(400).json({ status: "error", message: "Missing required fields" });
@@ -109,7 +105,7 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
-// 3. CLIENT VERIFY
+// FIXED: IDINAGDAG ANG EXPIRES SA RESPONSE
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -125,7 +121,8 @@ app.post('/verify', async (req, res) => {
             keyData.hwid = hwid; 
             keyData.status = "ACTIVE";
             await keyData.save();
-            return res.json({ status: "success", message: "Key activated!" });
+            // IDINAGDAG: expires field
+            return res.json({ status: "success", message: "Key activated!", expires: keyData.expires });
         }
 
         if (keyData.status === "ACTIVE") {
@@ -135,14 +132,14 @@ app.post('/verify', async (req, res) => {
             if (new Date() > keyData.expires) {
                 return res.status(403).json({ status: "expired", message: "Key expired" });
             }
-            return res.json({ status: "success", message: "Valid" });
+            // IDINAGDAG: expires field
+            return res.json({ status: "success", message: "Valid", expires: keyData.expires });
         }
     } catch (err) {
         res.status(500).json({ status: "error", message: "Server Error" });
     }
 });
 
-// 4. RESELLER VERIFY
 app.post('/verify-reseller', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Key or Device ID" });
@@ -175,7 +172,6 @@ app.post('/verify-reseller', async (req, res) => {
     }
 });
 
-// 5. LIST ALL KEYS (Para sa Main Admin UI mo)
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
     try {
@@ -192,7 +188,6 @@ app.get('/list', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// 6. LIST RESELLER KEYS (Para sa Second Panel)
 app.get('/list-reseller', async (req, res) => {
     const { resellerKey } = req.query;
     if (!resellerKey) return res.status(400).json({ status: "error", message: "Missing Reseller Key" });
@@ -209,7 +204,6 @@ app.get('/list-reseller', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// 7. TOGGLE PAUSE
 app.get('/toggle-pause', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
@@ -233,7 +227,6 @@ app.get('/toggle-pause', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// 8. DELETE KEY
 app.get('/delete', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
@@ -244,7 +237,6 @@ app.get('/delete', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// 9. GET LATEST SCRIPT
 app.post('/get-latest-script', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
