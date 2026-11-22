@@ -3,14 +3,13 @@ const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const fs = require('fs'); // <-- Idinagdag para sa auto-update
+const fs = require('fs'); 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Security: Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 200,
@@ -22,7 +21,6 @@ app.use('/api/', limiter);
 app.use('/get-latest-script', limiter);
 
 const ADMIN_PASSWORD = "CodexSquad101"; 
-// MAHALAGA: Ilagay ang MONGO_URI sa Render Environment Variables, huwag dito.
 const MONGO_URI = process.env.MONGO_URI; 
 
 mongoose.connect(MONGO_URI)
@@ -109,7 +107,7 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
-// 3. CLIENT VERIFY
+// 3. CLIENT VERIFY (Inayos para sa Expiry at HWID)
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -125,17 +123,22 @@ app.post('/verify', async (req, res) => {
             keyData.hwid = hwid; 
             keyData.status = "ACTIVE";
             await keyData.save();
-            return res.json({ status: "success", message: "Key activated!" });
+            return res.json({ status: "success", message: "Key activated!", expires: keyData.expires });
         }
 
         if (keyData.status === "ACTIVE") {
             if (keyData.hwid !== hwid) {
-                return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
+                if (keyData.hwid.includes("nil") || keyData.hwid.includes("FALLBACK") || keyData.hwid === "WALA_PA") {
+                    keyData.hwid = hwid;
+                    await keyData.save();
+                } else {
+                    return res.status(403).json({ status: "hwid_mismatch", message: "Key locked to another device" });
+                }
             }
             if (new Date() > keyData.expires) {
                 return res.status(403).json({ status: "expired", message: "Key expired" });
             }
-            return res.json({ status: "success", message: "Valid" });
+            return res.json({ status: "success", message: "Valid", expires: keyData.expires });
         }
     } catch (err) {
         res.status(500).json({ status: "error", message: "Server Error" });
@@ -175,7 +178,7 @@ app.post('/verify-reseller', async (req, res) => {
     }
 });
 
-// 5. LIST ALL KEYS (Para sa Main Admin UI mo)
+// 5. LIST ALL KEYS
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
     try {
@@ -192,7 +195,7 @@ app.get('/list', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
-// 6. LIST RESELLER KEYS (Para sa Second Panel)
+// 6. LIST RESELLER KEYS
 app.get('/list-reseller', async (req, res) => {
     const { resellerKey } = req.query;
     if (!resellerKey) return res.status(400).json({ status: "error", message: "Missing Reseller Key" });
