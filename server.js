@@ -10,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Security: Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 200,
@@ -20,6 +21,7 @@ app.use('/verify-reseller', limiter);
 app.use('/api/', limiter);
 app.use('/get-latest-script', limiter);
 
+// SIGURADONG TAMA ANG PASSWORD DITO
 const ADMIN_PASSWORD = "CodexSquad101"; 
 const MONGO_URI = process.env.MONGO_URI; 
 
@@ -60,6 +62,7 @@ function calculateExpiry(unit, duration) {
     return expires;
 }
 
+// 1. MAIN GENERATE
 app.get('/generate', async (req, res) => {
     const { password, duration, unit } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error", message: "Invalid Admin Password" });
@@ -76,6 +79,7 @@ app.get('/generate', async (req, res) => {
     }
 });
 
+// 2. RESELLER GENERATE
 app.post('/api/reseller-generate', async (req, res) => {
     const { resellerKey, duration, unit } = req.body;
     if (!resellerKey || !duration || !unit) return res.status(400).json({ status: "error", message: "Missing required fields" });
@@ -103,7 +107,7 @@ app.post('/api/reseller-generate', async (req, res) => {
     }
 });
 
-// BINAGO KO ITO PARA IBALIK ANG EXPIRES
+// 3. CLIENT VERIFY (AYOS NA PARA SA EXPIRY AT HWID)
 app.post('/verify', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
@@ -124,7 +128,6 @@ app.post('/verify', async (req, res) => {
 
         if (keyData.status === "ACTIVE") {
             if (keyData.hwid !== hwid) {
-                // AUTO-FIX SA LUMANG WEB-NIL BUG
                 if (keyData.hwid.includes("nil") || keyData.hwid.includes("FALLBACK") || keyData.hwid === "WALA_PA") {
                     keyData.hwid = hwid;
                     await keyData.save();
@@ -142,6 +145,7 @@ app.post('/verify', async (req, res) => {
     }
 });
 
+// 4. RESELLER VERIFY
 app.post('/verify-reseller', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Key or Device ID" });
@@ -174,6 +178,7 @@ app.post('/verify-reseller', async (req, res) => {
     }
 });
 
+// 5. LIST ALL KEYS
 app.get('/list', async (req, res) => {
     if (req.query.password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
     try {
@@ -190,6 +195,7 @@ app.get('/list', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
+// 6. LIST RESELLER KEYS
 app.get('/list-reseller', async (req, res) => {
     const { resellerKey } = req.query;
     if (!resellerKey) return res.status(400).json({ status: "error", message: "Missing Reseller Key" });
@@ -206,6 +212,7 @@ app.get('/list-reseller', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
+// 7. TOGGLE PAUSE
 app.get('/toggle-pause', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
@@ -229,6 +236,7 @@ app.get('/toggle-pause', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
+// 8. DELETE KEY
 app.get('/delete', async (req, res) => {
     const { password, key } = req.query;
     if (password !== ADMIN_PASSWORD) return res.status(401).json({ status: "error" });
@@ -239,6 +247,7 @@ app.get('/delete', async (req, res) => {
     } catch (err) { res.status(500).json({ status: "error" }); }
 });
 
+// 9. GET LATEST SCRIPT
 app.post('/get-latest-script', async (req, res) => {
     const { key, hwid } = req.body;
     if (!key || !hwid) return res.status(400).json({ status: "error", message: "Missing Data" });
